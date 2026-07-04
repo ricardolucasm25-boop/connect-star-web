@@ -98,6 +98,13 @@ svg.lucide {
   stroke-width: 2.3;
 }
 
+.ico-wa {
+  flex: 0 0 auto;
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: currentColor;
+}
+
 #fiberCanvas {
   position: fixed;
   inset: 0;
@@ -1575,6 +1582,45 @@ input[type="range"]::-moz-range-thumb {
   font-weight: 700;
 }
 
+.speedtest-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.speedtest-hint > svg {
+  flex: 0 0 auto;
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--cyan-400);
+}
+
+.speedtest-hint a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 1px;
+  border-bottom: 1px solid rgba(96, 255, 255, 0.35);
+  color: var(--cyan-400);
+  font-weight: 800;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.speedtest-hint a svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.speedtest-hint a:hover,
+.speedtest-hint a:focus-visible {
+  color: var(--white);
+  border-color: var(--white);
+}
+
 .compare-vs {
   display: grid;
   gap: 10px;
@@ -2031,6 +2077,10 @@ input[type="range"]::-moz-range-thumb {
 .floating-wa svg {
   width: 1.7rem;
   height: 1.7rem;
+}
+
+.floating-wa .ico-wa {
+  fill: #fff;
 }
 
 .wa-pulse {
