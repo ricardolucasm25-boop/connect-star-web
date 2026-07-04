@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Connect Star | Panel de imágenes</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/png" href="./assets/favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Rajdhani:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink-950: #03051b;
+        --cyan-400: #60ffff;
+        --magenta-500: #e050ff;
+        --lime-400: #c0ff10;
+        --white: #fff;
+        --muted: #b8c0df;
+        --muted-2: #8f99c1;
+        --panel: rgba(11, 11, 48, 0.82);
+        --radius: 10px;
+        --font-body: "Inter", Arial, sans-serif;
+        --font-display: "Rajdhani", "Inter", Arial, sans-serif;
+      }
+      * { box-sizing: border-box; }
+      body {
+        min-width: 320px;
+        margin: 0;
+        padding: 32px 16px 80px;
+        background:
+          linear-gradient(135deg, rgba(3, 5, 27, 0.98) 0%, rgba(12, 11, 55, 0.98) 48%, rgba(50, 8, 76, 0.98) 100%),
+          #0c0b37;
+        color: var(--white);
+        font-family: var(--font-body);
+        line-height: 1.5;
+      }
+      .wrap { width: min(980px, 100%); margin: 0 auto; }
+      header.panel-head { display: flex; align-items: center; gap: 18px; margin-bottom: 8px; }
+      header.panel-head img { width: 92px; }
+      h1 { margin: 0; font-family: var(--font-display); font-size: 2rem; text-transform: uppercase; }
+      .sub { margin: 4px 0 0; color: var(--muted); font-size: 0.95rem; }
+      .card {
+        margin-top: 22px;
+        padding: 22px;
+        border: 1px solid rgba(96, 255, 255, 0.22);
+        border-radius: var(--radius);
+        background: var(--panel);
+      }
+      .card h2 { margin: 0 0 6px; font-size: 1.15rem; }
+      .card p.hint { margin: 0 0 14px; color: var(--muted-2); font-size: 0.86rem; }
+      .token-row { display: flex; flex-wrap: wrap; gap: 10px; }
+      .token-row input {
+        flex: 1 1 260px;
+        min-height: 46px;
+        padding: 0 12px;
+        border: 1px solid rgba(96, 255, 255, 0.25);
+        border-radius: var(--radius);
+        background: rgba(3, 5, 27, 0.8);
+        color: var(--white);
+        font: inherit;
+        outline: 0;
+      }
+      .token-row input:focus { border-color: var(--cyan-400); }
+      button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 46px;
+        padding: 0 18px;
+        border: 0;
+        border-radius: var(--radius);
+        background: linear-gradient(135deg, var(--lime-400), #7cff1d);
+        color: #07131d;
+        font: inherit;
+        font-weight: 900;
+        cursor: pointer;
+        transition: transform 180ms ease, opacity 180ms ease;
+      }
+      button:hover { transform: translateY(-2px); }
+      button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+      button.ghost {
+        border: 1px solid rgba(96, 255, 255, 0.35);
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--white);
+      }
+      .status { margin-top: 10px; font-size: 0.88rem; font-weight: 700; min-height: 1.3em; }
+      .status.ok { color: var(--lime-400); }
+      .status.err { color: #ff7070; }
+      .status.busy { color: var(--cyan-400); }
+      .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 22px; }
+      @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
+      .slot {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+        border: 1px solid rgba(96, 255, 255, 0.18);
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .slot h3 { margin: 0; font-size: 1rem; }
+      .slot .meta { color: var(--muted-2); font-size: 0.8rem; }
+      .slot .meta code { color: var(--cyan-400); }
+      .drop {
+        position: relative;
+        display: grid;
+        place-items: center;
+        min-height: 170px;
+        border: 2px dashed rgba(96, 255, 255, 0.3);
+        border-radius: var(--radius);
+        overflow: hidden;
+        cursor: pointer;
+        transition: border-color 180ms ease, background 180ms ease;
+      }
+      .drop:hover, .drop.dragover { border-color: var(--lime-400); background: rgba(192, 255, 16, 0.06); }
+      .drop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+      .drop .overlay {
+        position: relative;
+        z-index: 2;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(3, 5, 27, 0.78);
+        color: var(--muted);
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-align: center;
+      }
+      .drop.has-new { border-style: solid; border-color: var(--magenta-500); }
+      .slot .row { display: flex; gap: 8px; }
+      .slot .row button { flex: 1; min-height: 42px; font-size: 0.9rem; }
+      .badge-new {
+        position: absolute;
+        top: 8px;
+        left: 8px;
+        z-index: 2;
+        padding: 3px 9px;
+        border-radius: 999px;
+        background: var(--magenta-500);
+        color: #fff;
+        font-size: 0.7rem;
+        font-weight: 900;
+        text-transform: uppercase;
+      }
+      footer.note { margin-top: 26px; color: var(--muted-2); font-size: 0.82rem; }
+      footer.note a { color: var(--cyan-400); }
+      input[type="file"] { display: none; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="panel-head">
+        <img src="./assets/connect-star-logo.webp" alt="Connect Star" />
+        <div>
+          <h1>Panel de imágenes</h1>
+          <p class="sub">Sube las fotos de la página sin tocar código. Cada subida publica automáticamente en 1-2 minutos.</p>
+        </div>
+      </header>
+
+      <section class="card">
+        <h2>1 · Conexión</h2>
+        <p class="hint">
+          Pega el código de acceso que te entregó Connect Star. Se guarda solo en este navegador.
+        </p>
+        <div class="token-row">
+          <input id="tokenInput" type="password" placeholder="Código de acceso (token)" autocomplete="off" />
+          <button id="connectBtn">Conectar</button>
+          <button id="forgetBtn" class="ghost" type="button">Olvidar</button>
+        </div>
+        <p class="status" id="connStatus"></p>
+      </section>
+
+      <section class="card">
+        <h2>2 · Imágenes de la página</h2>
+        <p class="hint">
+          Arrastra una foto a su casilla (o haz clic para elegirla). El panel la recorta y comprime
+          automáticamente al tamaño correcto. Luego presiona <strong>Publicar</strong>.
+        </p>
+        <div class="grid" id="slotsGrid"></div>
+      </section>
+
+      <footer class="note">
+        Guía completa de fotos en <a href="./GUIA-IMAGENES.md" target="_blank" rel="noopener">GUIA-IMAGENES.md</a>.
+        Si una imagen no cambia en la web tras unos minutos, refresca con Ctrl+F5 (la caché guarda la versión anterior).
+      </footer>
+    </div>
+
+    <script src="./admin.js"></script>
+  </body>
+</html>
