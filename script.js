@@ -341,6 +341,236 @@ if (
   teaserTick();
 }
 
+/* ---------- Animación de velocidad en el hero (haces de fibra) ---------- */
+
+const heroFx = qs(".hero-fx");
+const heroPhoto = qs(".hero-photo");
+
+if (heroFx && heroPhoto && !prefersReducedMotion) {
+  const ctx = heroFx.getContext("2d");
+  let W = 0;
+  let H = 0;
+  let DPR = 1;
+
+  const NODE = { x: 0.6, y: 0.4 };
+  const C = {
+    blue: [48, 160, 255],
+    cyan: [96, 255, 255],
+    lime: [192, 255, 16],
+    magenta: [224, 80, 255],
+  };
+
+  const inbound = [
+    { c: C.blue, p: [[-0.05, 0.6], [0.25, 0.72], [0.45, 0.3], [NODE.x, NODE.y]] },
+    { c: C.cyan, p: [[-0.05, 0.73], [0.3, 0.88], [0.48, 0.38], [NODE.x, NODE.y]] },
+    { c: C.lime, p: [[-0.05, 0.86], [0.34, 1.0], [0.5, 0.48], [NODE.x, NODE.y]] },
+    { c: C.magenta, p: [[-0.05, 0.99], [0.38, 1.1], [0.52, 0.58], [NODE.x, NODE.y]] },
+  ];
+  const outbound = [
+    { c: C.cyan, p: [[NODE.x, NODE.y], [0.74, 0.22], [0.9, 0.3], [1.06, 0.16]] },
+    { c: C.magenta, p: [[NODE.x, NODE.y], [0.76, 0.3], [0.9, 0.14], [1.06, 0.3]] },
+  ];
+  const streams = [...inbound, ...outbound];
+  const SAMPLES = 80;
+
+  const bezier = (p, t) => {
+    const u = 1 - t;
+    return [
+      u * u * u * p[0][0] + 3 * u * u * t * p[1][0] + 3 * u * t * t * p[2][0] + t * t * t * p[3][0],
+      u * u * u * p[0][1] + 3 * u * u * t * p[1][1] + 3 * u * t * t * p[2][1] + t * t * t * p[3][1],
+    ];
+  };
+
+  streams.forEach((s, si) => {
+    s.pts = [];
+    for (let i = 0; i <= SAMPLES; i += 1) s.pts.push(bezier(s.p, i / SAMPLES));
+    s.packets = Array.from({ length: 4 }, (_, i) => ({ t: (i / 4 + si * 0.05) % 1 }));
+  });
+
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const palette = [C.cyan, C.magenta, C.blue, C.lime];
+  const bokeh = Array.from({ length: 10 }, () => ({
+    x: Math.random(), y: Math.random(), r: rnd(0.03, 0.07),
+    c: palette[Math.floor(Math.random() * 3)],
+    vx: rnd(-0.00004, 0.00004), vy: rnd(-0.00003, 0.00003), a: rnd(0.05, 0.14),
+  }));
+  const sparks = Array.from({ length: 42 }, () => ({
+    x: Math.random(), y: Math.random(), ph: Math.random() * Math.PI * 2,
+    c: palette[Math.floor(Math.random() * 4)],
+  }));
+
+  const glowCache = new Map();
+  const glowFor = (rgb) => {
+    const k = rgb.join();
+    if (!glowCache.has(k)) {
+      const s = 64;
+      const cv = document.createElement("canvas");
+      cv.width = s;
+      cv.height = s;
+      const g = cv.getContext("2d");
+      const rg = g.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+      rg.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.95)`);
+      rg.addColorStop(0.4, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.32)`);
+      rg.addColorStop(1, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0)`);
+      g.fillStyle = rg;
+      g.fillRect(0, 0, s, s);
+      glowCache.set(k, cv);
+    }
+    return glowCache.get(k);
+  };
+
+  const resize = () => {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = heroFx.getBoundingClientRect();
+    W = rect.width;
+    H = rect.height;
+    heroFx.width = Math.max(1, Math.round(W * DPR));
+    heroFx.height = Math.max(1, Math.round(H * DPR));
+  };
+
+  let boost = 0;
+  let target = 0;
+  let last = null;
+  heroPhoto.addEventListener("pointermove", (event) => {
+    const rect = heroPhoto.getBoundingClientRect();
+    const p = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+    if (last) target = Math.min(1, target + Math.hypot(p.x - last.x, p.y - last.y) / 240);
+    last = p;
+    target = Math.max(target, 0.5);
+  });
+  heroPhoto.addEventListener("pointerleave", () => { target = 0; last = null; });
+  heroPhoto.addEventListener("pointerdown", () => { target = 1; });
+
+  let t0 = performance.now();
+  const draw = (now) => {
+    const dt = Math.min(40, Math.max(0, now - t0));
+    t0 = now;
+    boost += (target - boost) * 0.06;
+    target *= 0.95;
+    const speed = 0.00016 + boost * 0.00075;
+
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    const bg = ctx.createLinearGradient(0, 0, W, H);
+    bg.addColorStop(0, "#05041c");
+    bg.addColorStop(0.55, "#0d0b38");
+    bg.addColorStop(1, "#2a0f52");
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+
+    const nx = NODE.x * W;
+    const ny = NODE.y * H;
+    const halo = ctx.createRadialGradient(nx, ny, 0, nx, ny, Math.max(W, H) * 0.5);
+    halo.addColorStop(0, `rgba(96,255,255,${0.12 + boost * 0.12})`);
+    halo.addColorStop(0.5, "rgba(48,80,180,0.05)");
+    halo.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = halo;
+    ctx.fillRect(0, 0, W, H);
+
+    ctx.globalCompositeOperation = "lighter";
+
+    bokeh.forEach((b) => {
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+      if (b.x < -0.1) b.x = 1.1;
+      if (b.x > 1.1) b.x = -0.1;
+      if (b.y < -0.1) b.y = 1.1;
+      if (b.y > 1.1) b.y = -0.1;
+      const r = b.r * W;
+      ctx.globalAlpha = b.a;
+      ctx.drawImage(glowFor(b.c), b.x * W - r, b.y * H - r, r * 2, r * 2);
+    });
+    ctx.globalAlpha = 1;
+
+    streams.forEach((s) => {
+      ctx.beginPath();
+      s.pts.forEach((pt, i) => {
+        const x = pt[0] * W;
+        const y = pt[1] * H;
+        if (i) ctx.lineTo(x, y);
+        else ctx.moveTo(x, y);
+      });
+      ctx.strokeStyle = `rgba(${s.c[0]},${s.c[1]},${s.c[2]},${0.16 + boost * 0.14})`;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+
+    streams.forEach((s) => {
+      const glow = glowFor(s.c);
+      s.packets.forEach((pk) => {
+        pk.t += speed * dt;
+        pk.t -= Math.floor(pk.t);
+        const idx = pk.t * SAMPLES;
+        const i0 = Math.floor(idx);
+        const i1 = Math.min(SAMPLES, i0 + 1);
+        const f = idx - i0;
+        const a = s.pts[i0];
+        const b = s.pts[i1];
+        const x = (a[0] + (b[0] - a[0]) * f) * W;
+        const y = (a[1] + (b[1] - a[1]) * f) * H;
+
+        const trail = Math.max(0, i0 - Math.round(5 + boost * 12));
+        ctx.beginPath();
+        for (let i = trail; i <= i0; i += 1) {
+          const px = s.pts[i][0] * W;
+          const py = s.pts[i][1] * H;
+          if (i === trail) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.strokeStyle = `rgba(${s.c[0]},${s.c[1]},${s.c[2]},0.5)`;
+        ctx.lineWidth = 2.4;
+        ctx.stroke();
+
+        const r = 11 + boost * 9;
+        ctx.drawImage(glow, x - r, y - r, r * 2, r * 2);
+        ctx.fillStyle = "rgba(255,255,255,0.95)";
+        ctx.beginPath();
+        ctx.arc(x, y, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      });
+    });
+
+    const pulse = 1 + Math.sin(now / 380) * 0.08 + boost * 0.15;
+    const nr = (66 + boost * 44) * pulse;
+    ctx.drawImage(glowFor(C.cyan), nx - nr, ny - nr, nr * 2, nr * 2);
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.beginPath();
+    ctx.arc(nx, ny, 6 + boost * 3, 0, Math.PI * 2);
+    ctx.fill();
+
+    const ringR = (108 + boost * 34) * pulse;
+    ctx.strokeStyle = "rgba(96,255,255,0.4)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(nx, ny, ringR, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(224,80,255,0.3)";
+    const rot = (now / 2000) % (Math.PI * 2);
+    ctx.beginPath();
+    ctx.arc(nx, ny, ringR * 1.4, rot, rot + Math.PI * 1.3);
+    ctx.stroke();
+
+    sparks.forEach((sp) => {
+      const a = 0.3 + 0.7 * (0.5 + 0.5 * Math.sin(now / 500 + sp.ph));
+      ctx.fillStyle = `rgba(${sp.c[0]},${sp.c[1]},${sp.c[2]},${a * 0.8})`;
+      ctx.beginPath();
+      ctx.arc(sp.x * W, sp.y * H, 1.4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.globalCompositeOperation = "source-over";
+    heroPhoto.classList.toggle("is-fast", boost > 0.4);
+    requestAnimationFrame(draw);
+  };
+
+  if ("ResizeObserver" in window) {
+    new ResizeObserver(resize).observe(heroFx);
+  } else {
+    window.addEventListener("resize", resize, { passive: true });
+  }
+  resize();
+  requestAnimationFrame(draw);
+}
+
 /* ---------- Estado "en línea" (horario Lima, UTC-5) ---------- */
 
 const onlineState = qs("#onlineState");
