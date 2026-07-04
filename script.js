@@ -171,6 +171,71 @@ qsa("[data-whatsapp-plan]").forEach((button) => {
   });
 });
 
+/* ---------- CTAs con mensaje de WhatsApp contextual ---------- */
+
+qsa("[data-wa-context]").forEach((button) => {
+  button.addEventListener("click", () => openWhatsApp(button.dataset.waContext));
+});
+
+/* ---------- Comparador de velocidad ---------- */
+
+const speedRange = qs("#speedRange");
+
+if (speedRange) {
+  const PLAN_MBPS = 500;
+  const GAME_MB = 480000; // juego de 60 GB en megabits
+
+  const fmtTime = (seconds) => {
+    const min = Math.round(seconds / 60);
+    if (min < 60) return `${min} min`;
+    return `${Math.floor(min / 60)} h ${min % 60} min`;
+  };
+
+  const pop = (el) => {
+    const target = el.closest("strong") || el;
+    target.classList.remove("pop");
+    void target.offsetWidth;
+    target.classList.add("pop");
+  };
+
+  const updateCompare = () => {
+    const current = Number(speedRange.value);
+
+    qs("#curSpeed").textContent = current;
+    qs("#cmpX").textContent = Math.max(1, Math.round(PLAN_MBPS / current));
+    qs("#cmpGame").textContent = fmtTime(GAME_MB / PLAN_MBPS);
+    qs("#cmpGameNow").textContent = fmtTime(GAME_MB / current);
+    qs("#cmpStreams").textContent = Math.floor(PLAN_MBPS / 25);
+    qs("#cmpStreamsNow").textContent = Math.floor(current / 25);
+    qs("#barNow").style.width = `${Math.max(2, (current / PLAN_MBPS) * 100)}%`;
+
+    [qs("#cmpX"), qs("#cmpGame"), qs("#cmpStreams")].forEach(pop);
+  };
+
+  speedRange.addEventListener("input", updateCompare);
+  updateCompare();
+
+  qs("#compareCta")?.addEventListener("click", () => {
+    openWhatsApp(
+      `Hola Connect Star, hoy tengo ${speedRange.value} Mbps y quiero mejorar mi internet con el plan de 500 Mbps (promo 1000 Mbps x 3 meses). ¿Validamos cobertura?`
+    );
+  });
+}
+
+/* ---------- Estado "en línea" (horario Lima, UTC-5) ---------- */
+
+const onlineState = qs("#onlineState");
+
+if (onlineState) {
+  const limaHour = (new Date().getUTCHours() + 24 - 5) % 24;
+  const isOpen = limaHour >= 8 && limaHour < 22;
+
+  if (!isOpen) {
+    onlineState.classList.add("offline");
+    onlineState.lastChild.textContent = "Te respondemos desde las 8:00 a. m.";
+  }
+}
+
 /* ---------- Consulta de cobertura ---------- */
 
 const coverageForm = qs("#coverageForm");

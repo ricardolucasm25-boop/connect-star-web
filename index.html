@@ -152,6 +152,22 @@
         </a>
       </section>
 
+      <!-- ============ SKIN MUNDIAL 2026 · Sección TEMPORAL: eliminar al terminar la Copa ============ -->
+      <section class="mundial-banner reveal-up" aria-label="Promoción Mundial 2026">
+        <div class="mundial-copy">
+          <span class="mundial-chip"><span class="ball" aria-hidden="true">⚽</span> Mundial 2026</span>
+          <h2>El Mundial se ve mejor con fibra</h2>
+          <p>
+            Partidos en 4K sin cortes y cero lag en el gol. Plan de 500 Mbps navegando a
+            <strong>1000 Mbps</strong> los primeros 3 meses.
+          </p>
+        </div>
+        <button class="btn btn-primary" type="button" data-wa-context="Hola Connect Star, quiero el plan mundialista de 500 Mbps (promo 1000 Mbps x 3 meses) para ver el Mundial sin cortes.">
+          <i data-lucide="zap"></i>
+          Quiero mi plan mundialista
+        </button>
+      </section>
+
       <!-- ============ PLANES ============ -->
       <section class="plans-section section-pad" id="planes" aria-labelledby="plansTitle">
         <div class="section-heading reveal-up">
@@ -418,6 +434,60 @@
         </div>
       </section>
 
+      <!-- ============ COMPARADOR ============ -->
+      <section class="compare-section section-pad" id="comparador" aria-labelledby="compareTitle">
+        <div class="section-heading reveal-up">
+          <span class="section-chip"><i data-lucide="gauge"></i> Comparador</span>
+          <h2 id="compareTitle">¿Cuánto mejoraría tu internet?</h2>
+          <p>Mueve la barra a la velocidad que tienes hoy y mira la diferencia con Connect Star.</p>
+        </div>
+
+        <div class="compare-card reveal-up">
+          <div class="compare-input">
+            <label for="speedRange">
+              Tu velocidad actual:
+              <strong><span id="curSpeed">30</span> Mbps</strong>
+            </label>
+            <input id="speedRange" type="range" min="5" max="200" step="5" value="30" aria-label="Tu velocidad actual en megabits" />
+            <div class="range-marks" aria-hidden="true"><span>5</span><span>100</span><span>200 Mbps</span></div>
+          </div>
+
+          <div class="compare-vs" aria-hidden="true">
+            <div class="vs-row">
+              <span>Hoy</span>
+              <div class="bar"><i id="barNow"></i></div>
+            </div>
+            <div class="vs-row">
+              <span>Connect Star</span>
+              <div class="bar"><i class="bar-cs"></i></div>
+            </div>
+          </div>
+
+          <div class="compare-results">
+            <div>
+              <strong><span id="cmpX">17</span>x</strong>
+              <span>más velocidad con el plan de 500 Mbps</span>
+            </div>
+            <div>
+              <strong id="cmpGame">16 min</strong>
+              <span>en bajar un juego de 60 GB · hoy te toma <em id="cmpGameNow">4 h 27 min</em></span>
+            </div>
+            <div>
+              <strong><span id="cmpStreams">20</span></strong>
+              <span>pantallas 4K a la vez · hoy soportas <em id="cmpStreamsNow">1</em></span>
+            </div>
+          </div>
+
+          <button class="btn btn-primary compare-cta" type="button" id="compareCta">
+            <i data-lucide="message-circle"></i>
+            Quiero mejorar mi internet
+          </button>
+          <p class="compare-note">
+            Cálculos referenciales sobre el plan de 500 Mbps (promo 1000 Mbps x 3 meses según disponibilidad).
+          </p>
+        </div>
+      </section>
+
       <!-- ============ MÉTRICAS ============ -->
       <section class="stats-section" aria-label="Connect Star en números">
         <div class="stats-grid reveal-up">
@@ -494,6 +564,33 @@
                 <span>Plan 200 Mbps</span>
               </div>
             </footer>
+          </article>
+        </div>
+      </section>
+
+      <!-- ============ CONFIANZA OPERATIVA ============ -->
+      <section class="trustops-section" aria-label="Atención y canales oficiales">
+        <div class="trustops-grid reveal-up">
+          <article>
+            <i data-lucide="clock-3"></i>
+            <div>
+              <strong id="onlineState"><span class="live-dot"></span>En línea ahora</strong>
+              <span>Atención comercial todos los días de 8:00 a. m. a 10:00 p. m.</span>
+            </div>
+          </article>
+          <article>
+            <i data-lucide="badge-check"></i>
+            <div>
+              <strong>Un solo canal oficial</strong>
+              <span>WhatsApp y llamadas únicamente al 967 967 540.</span>
+            </div>
+          </article>
+          <article>
+            <i data-lucide="shield-alert"></i>
+            <div>
+              <strong>Compra segura</strong>
+              <span>Nunca te pediremos contraseñas ni códigos de verificación.</span>
+            </div>
           </article>
         </div>
       </section>
@@ -580,6 +677,24 @@
             <summary>¿Qué necesito para contratar?</summary>
             <p>Solo tu DNI o RUC, un número de contacto y la dirección de instalación. Todo el proceso se coordina por WhatsApp.</p>
           </details>
+        </div>
+      </section>
+
+      <!-- ============ ¿YA ERES CLIENTE? ============ -->
+      <section class="client-strip reveal-up" aria-label="Clientes actuales">
+        <div>
+          <h2>¿Ya eres cliente de Connect Star?</h2>
+          <p>No hagas cola en el canal de ventas: te atendemos directo.</p>
+        </div>
+        <div class="client-actions">
+          <button class="btn btn-ghost" type="button" data-wa-context="Hola Connect Star, ya soy cliente y necesito soporte técnico con mi servicio.">
+            <i data-lucide="wrench"></i>
+            Soporte técnico
+          </button>
+          <button class="btn btn-ghost" type="button" data-wa-context="Hola Connect Star, ya soy cliente y quiero consultar mi recibo o registrar mi pago.">
+            <i data-lucide="receipt"></i>
+            Mi recibo / pagos
+          </button>
         </div>
       </section>
     </main>
