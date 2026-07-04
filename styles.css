@@ -1594,6 +1594,202 @@ input[type="range"]::-moz-range-thumb {
   text-align: center;
 }
 
+/* ============ SIMULADOR DE LAG ============ */
+
+.lag-section {
+  padding-top: 30px;
+  padding-bottom: 46px;
+}
+
+.lag-card {
+  display: grid;
+  gap: 18px;
+  width: min(980px, 100%);
+  margin: 0 auto;
+  padding: 26px;
+  border: 1px solid rgba(96, 255, 255, 0.24);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(160deg, rgba(32, 208, 255, 0.07), rgba(224, 80, 255, 0.08)),
+    var(--panel-strong);
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.35);
+}
+
+.lag-arena {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  touch-action: none;
+}
+
+.lag-pane {
+  border: 1px solid rgba(96, 255, 255, 0.28);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: rgba(3, 5, 27, 0.72);
+}
+
+.lag-pane.is-bad {
+  border-color: rgba(255, 96, 96, 0.34);
+}
+
+.lag-pane header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.lag-ms {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.lag-ms.good {
+  background: rgba(192, 255, 16, 0.14);
+  color: var(--lime-400);
+}
+
+.lag-ms.bad {
+  background: rgba(255, 96, 96, 0.14);
+  color: #ff8080;
+}
+
+.pane-field {
+  position: relative;
+  height: 230px;
+  cursor: crosshair;
+  background-image:
+    linear-gradient(rgba(96, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(96, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.dot-follow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  margin: -11px 0 0 -11px;
+  border-radius: 50%;
+  background: var(--lime-400);
+  box-shadow: 0 0 18px rgba(192, 255, 16, 0.9), 0 0 46px rgba(192, 255, 16, 0.4);
+  transform: translate(50%, 115px);
+  pointer-events: none;
+}
+
+.dot-follow::after {
+  position: absolute;
+  inset: -7px;
+  content: "";
+  border: 2px solid rgba(192, 255, 16, 0.5);
+  border-radius: 50%;
+}
+
+.dot-follow.bad {
+  background: #ff6060;
+  box-shadow: 0 0 18px rgba(255, 96, 96, 0.9), 0 0 46px rgba(255, 96, 96, 0.4);
+}
+
+.dot-follow.bad::after {
+  border-color: rgba(255, 96, 96, 0.5);
+}
+
+.lag-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  text-align: center;
+}
+
+.lag-hint svg {
+  flex: 0 0 auto;
+  color: var(--cyan-400);
+}
+
+.lag-control {
+  display: grid;
+  gap: 10px;
+  width: min(560px, 100%);
+  margin: 0 auto;
+}
+
+.lag-control label {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+#lagRange {
+  background: linear-gradient(90deg, var(--cyan-500), #ff6060);
+}
+
+#lagRange::-webkit-slider-thumb {
+  background: #ff6060;
+  box-shadow: 0 0 18px rgba(255, 96, 96, 0.7);
+}
+
+#lagRange::-moz-range-thumb {
+  background: #ff6060;
+  box-shadow: 0 0 18px rgba(255, 96, 96, 0.7);
+}
+
+.lag-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  width: min(980px, 100%);
+  margin: 22px auto 0;
+}
+
+.lag-facts article {
+  padding: 20px;
+  border: 1px solid rgba(96, 255, 255, 0.18);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.05);
+  transition: transform var(--transition), border-color var(--transition);
+}
+
+.lag-facts article:hover {
+  border-color: rgba(96, 255, 255, 0.5);
+  transform: translateY(-4px);
+}
+
+.lag-facts svg {
+  width: 1.9rem;
+  height: 1.9rem;
+  color: var(--cyan-400);
+}
+
+.lag-facts h3 {
+  margin: 12px 0 8px;
+  font-size: 1.05rem;
+}
+
+.lag-facts p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.lag-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
 /* ============ CONFIANZA OPERATIVA ============ */
 
 .trustops-section {
@@ -2220,6 +2416,29 @@ input[type="range"]::-moz-range-thumb {
   }
 
   .compare-cta {
+    width: 100%;
+  }
+
+  .lag-card {
+    padding: 18px 14px;
+  }
+
+  .pane-field {
+    height: 170px;
+  }
+
+  .lag-pane header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    font-size: 0.76rem;
+  }
+
+  .lag-facts {
+    grid-template-columns: 1fr;
+  }
+
+  .lag-cta .btn {
     width: 100%;
   }
 

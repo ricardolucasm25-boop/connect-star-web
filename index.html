@@ -488,6 +488,77 @@
         </div>
       </section>
 
+      <!-- ============ SIMULADOR DE LAG ============ -->
+      <section class="lag-section section-pad" id="lag" aria-labelledby="lagTitle">
+        <div class="section-heading reveal-up">
+          <span class="section-chip"><i data-lucide="crosshair"></i> Simulador de lag</span>
+          <h2 id="lagTitle">Más megas no siempre es mejor internet</h2>
+          <p>
+            Te pueden vender 1000 o 2000 Mbps con un ping desastroso: si la red está saturada,
+            todo responde tarde. Siéntelo tú mismo:
+          </p>
+        </div>
+
+        <div class="lag-card reveal-up">
+          <div class="lag-arena" id="lagArena">
+            <div class="lag-pane">
+              <header>
+                Fibra Connect Star
+                <span class="lag-ms good">ping estable</span>
+              </header>
+              <div class="pane-field">
+                <span class="dot-follow" id="dotGood" aria-hidden="true"></span>
+              </div>
+            </div>
+            <div class="lag-pane is-bad">
+              <header>
+                Red saturada
+                <span class="lag-ms bad">+<span id="lagVal">180</span> ms</span>
+              </header>
+              <div class="pane-field">
+                <span class="dot-follow bad" id="dotBad" aria-hidden="true"></span>
+              </div>
+            </div>
+          </div>
+          <p class="lag-hint">
+            <i data-lucide="move"></i>
+            Mueve el mouse o el dedo sobre los paneles: el punto verde eres tú con fibra; el rojo,
+            tú con una red congestionada.
+          </p>
+
+          <div class="lag-control">
+            <label for="lagRange">Congestión de la otra red</label>
+            <input id="lagRange" type="range" min="60" max="400" step="20" value="180" aria-label="Nivel de congestión simulada en milisegundos" />
+            <div class="range-marks" aria-hidden="true"><span>hora valle</span><span>hora punta 8 p. m.</span></div>
+          </div>
+        </div>
+
+        <div class="lag-facts reveal-up reveal-delay-1">
+          <article>
+            <i data-lucide="crosshair"></i>
+            <h3>Ping bajo y estable</h3>
+            <p>Fibra hasta tu casa, sin antenas compartidas. En juegos y videollamadas lo que importa es que el ping no salte.</p>
+          </article>
+          <article>
+            <i data-lucide="activity"></i>
+            <h3>Sin horas punta</h3>
+            <p>Cuando una red barata se satura, el ping se dispara aunque los megas "estén ahí": eso es el bufferbloat. Nuestra red se dimensiona para la noche, no para el papel.</p>
+          </article>
+          <article>
+            <i data-lucide="arrow-up-down"></i>
+            <h3>Subida simétrica</h3>
+            <p>Subes igual de rápido de lo que bajas: clases en vivo, Zoom y cámaras sin congelarse. Los planes informales casi nunca lo ofrecen.</p>
+          </article>
+        </div>
+
+        <div class="lag-cta reveal-up">
+          <button class="btn btn-primary" type="button" data-wa-context="Hola Connect Star, quiero internet estable y sin lag para gaming, streaming y videollamadas. ¿Validamos cobertura en mi zona?">
+            <i data-lucide="zap"></i>
+            Quiero internet sin lag
+          </button>
+        </div>
+      </section>
+
       <!-- ============ MÉTRICAS ============ -->
       <section class="stats-section" aria-label="Connect Star en números">
         <div class="stats-grid reveal-up">

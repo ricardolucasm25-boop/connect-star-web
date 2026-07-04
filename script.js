@@ -222,6 +222,65 @@ if (speedRange) {
   });
 }
 
+/* ---------- Simulador de lag ---------- */
+
+const lagArena = qs("#lagArena");
+
+if (lagArena && !prefersReducedMotion) {
+  const dotGood = qs("#dotGood");
+  const dotBad = qs("#dotBad");
+  const lagRange = qs("#lagRange");
+  const lagVal = qs("#lagVal");
+  const fields = qsa(".pane-field", lagArena);
+
+  let lagMs = Number(lagRange?.value || 180);
+  const history = []; // posiciones relativas {t, x, y} con x/y en 0..1
+  let lastPos = { x: 0.5, y: 0.5 };
+
+  lagRange?.addEventListener("input", () => {
+    lagMs = Number(lagRange.value);
+    if (lagVal) lagVal.textContent = lagMs;
+  });
+
+  const record = (event) => {
+    const field = event.currentTarget;
+    const rect = field.getBoundingClientRect();
+    const x = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+    const y = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
+    lastPos = { x, y };
+    history.push({ t: performance.now(), x, y });
+    if (history.length > 240) history.splice(0, history.length - 240);
+  };
+
+  fields.forEach((field) => {
+    field.addEventListener("pointermove", record);
+    field.addEventListener("pointerdown", record);
+  });
+
+  const positionAt = (time) => {
+    for (let i = history.length - 1; i >= 0; i -= 1) {
+      if (history[i].t <= time) return history[i];
+    }
+    return history[0] || lastPos;
+  };
+
+  const place = (dot, pos) => {
+    const field = dot.parentElement;
+    dot.style.transform = `translate(${pos.x * field.clientWidth}px, ${pos.y * field.clientHeight}px)`;
+  };
+
+  const tick = () => {
+    const now = performance.now();
+    // bufferbloat: el retraso ondula, no es constante
+    const wobble = 1 + 0.35 * Math.sin(now / 300);
+    place(dotGood, lastPos);
+    place(dotBad, positionAt(now - lagMs * wobble));
+    requestAnimationFrame(tick);
+  };
+
+  tick();
+}
+
 /* ---------- Estado "en línea" (horario Lima, UTC-5) ---------- */
 
 const onlineState = qs("#onlineState");
