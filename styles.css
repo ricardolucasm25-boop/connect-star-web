@@ -485,6 +485,76 @@ svg.lucide {
   color: var(--lime-400);
 }
 
+/* ---- Teaser de lag en el hero (solo desktop) ---- */
+
+.lag-teaser {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.hero-section.is-playing .lag-teaser {
+  opacity: 1;
+}
+
+.tz-dot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border-radius: 50%;
+}
+
+.tz-good {
+  background: var(--lime-400);
+  box-shadow: 0 0 14px rgba(192, 255, 16, 0.9);
+}
+
+.tz-bad {
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  background: #ff6060;
+  box-shadow: 0 0 16px rgba(255, 96, 96, 0.9);
+}
+
+.tz-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 96, 96, 0.42);
+  border-radius: 999px;
+  background: rgba(5, 6, 32, 0.93);
+  color: #ffd9d9;
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity 300ms ease;
+}
+
+.tz-tip b {
+  color: #ff8080;
+}
+
+.tz-tip.show {
+  opacity: 1;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .lag-teaser {
+    display: none;
+  }
+}
+
 /* ---- Foto hero con chips flotantes ---- */
 
 .hero-visual {

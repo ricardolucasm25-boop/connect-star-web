@@ -281,6 +281,66 @@ if (lagArena && !prefersReducedMotion) {
   tick();
 }
 
+/* ---------- Teaser de lag en el hero (solo desktop) ---------- */
+
+const heroSection = qs(".hero-section");
+const lagTeaser = qs("#lagTeaser");
+
+if (
+  heroSection &&
+  lagTeaser &&
+  !prefersReducedMotion &&
+  window.matchMedia("(hover: hover) and (pointer: fine)").matches
+) {
+  const tzGood = qs(".tz-good", lagTeaser);
+  const tzBad = qs(".tz-bad", lagTeaser);
+  const tzTip = qs(".tz-tip", lagTeaser);
+  const trail = [];
+  let cursor = null;
+  let playStart = 0;
+
+  heroSection.addEventListener("pointermove", (event) => {
+    const rect = heroSection.getBoundingClientRect();
+    cursor = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+    trail.push({ t: performance.now(), ...cursor });
+    if (trail.length > 200) trail.splice(0, trail.length - 200);
+    if (!playStart) playStart = performance.now();
+    heroSection.classList.add("is-playing");
+  });
+
+  heroSection.addEventListener("pointerleave", () => {
+    heroSection.classList.remove("is-playing");
+    tzTip.classList.remove("show");
+    trail.length = 0;
+    cursor = null;
+    playStart = 0;
+  });
+
+  const trailAt = (time) => {
+    for (let i = trail.length - 1; i >= 0; i -= 1) {
+      if (trail[i].t <= time) return trail[i];
+    }
+    return cursor;
+  };
+
+  const teaserTick = () => {
+    if (cursor) {
+      const now = performance.now();
+      const wobble = 1 + 0.35 * Math.sin(now / 300);
+      const late = trailAt(now - 230 * wobble) || cursor;
+
+      tzGood.style.transform = `translate(${cursor.x}px, ${cursor.y}px)`;
+      tzBad.style.transform = `translate(${late.x}px, ${late.y}px)`;
+      tzTip.style.transform = `translate(${late.x + 16}px, ${late.y + 14}px)`;
+
+      if (playStart && now - playStart > 1300) tzTip.classList.add("show");
+    }
+    requestAnimationFrame(teaserTick);
+  };
+
+  teaserTick();
+}
+
 /* ---------- Estado "en línea" (horario Lima, UTC-5) ---------- */
 
 const onlineState = qs("#onlineState");
