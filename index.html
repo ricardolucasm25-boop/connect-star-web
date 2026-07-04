@@ -40,12 +40,13 @@
   </head>
   <body>
     <canvas id="fiberCanvas" aria-hidden="true"></canvas>
+    <div class="scroll-progress" aria-hidden="true"></div>
 
     <header class="site-header" id="inicio">
       <div class="top-strip">
         <p class="promo-ticker">
           <span class="live-dot"></span>
-          <strong>PROMO:</strong>&nbsp;1000 Mbps x 3 meses en planes seleccionados
+          <span class="marquee-inner"><strong>PROMO:</strong>&nbsp;1000 Mbps x 3 meses en planes seleccionados</span>
         </p>
         <a href="tel:+51967967540">
           <i data-lucide="phone"></i>
@@ -55,7 +56,8 @@
 
       <div class="nav-shell">
         <a class="brand" href="#inicio" aria-label="Connect Star inicio">
-          <img src="./assets/connect-star-logo.webp" alt="Connect Star" />
+          <img src="./assets/connect-star-logo.webp" alt="" />
+          <span class="brand-word">CONNECT<b>STAR</b></span>
         </a>
 
         <button class="nav-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">
@@ -117,7 +119,7 @@
           <div class="hero-visual reveal-up reveal-delay-1">
             <figure class="hero-photo">
               <!-- IMAGEN: reemplazar assets/img/hero-hogar.jpg con foto real (ver GUIA-IMAGENES.md) -->
-              <img src="./assets/img/hero-hogar.jpg" alt="Familia disfrutando internet de fibra óptica en casa" loading="eager" />
+              <img src="./assets/img/hero-hogar.jpg" alt="Red de fibra óptica Connect Star iluminada" loading="eager" />
               <figcaption class="float-chip chip-speed">
                 <i data-lucide="zap"></i>
                 <span><strong>Hasta 1000</strong> Mbps</span>
@@ -409,6 +411,9 @@
           <figure class="mesh-photo reveal-up reveal-delay-1">
             <!-- IMAGEN: reemplazar assets/img/router-mesh.jpg con foto real (ver GUIA-IMAGENES.md) -->
             <img src="./assets/img/router-mesh.jpg" alt="Router WiFi 6 y punto mesh de Connect Star" loading="lazy" />
+            <span class="pulse-ring pr-1" aria-hidden="true"></span>
+            <span class="pulse-ring pr-2" aria-hidden="true"></span>
+            <span class="pulse-ring pr-3" aria-hidden="true"></span>
           </figure>
         </div>
       </section>
@@ -601,7 +606,27 @@
     <a class="floating-wa" href="https://wa.me/51967967540?text=Hola%20Connect%20Star%2C%20quiero%20informaci%C3%B3n%20sobre%20sus%20planes." target="_blank" rel="noopener" aria-label="Escribir por WhatsApp">
       <i data-lucide="message-circle"></i>
       <span class="wa-pulse" aria-hidden="true"></span>
+      <span class="wa-bubble" id="waBubble">¿Validamos la cobertura de tu zona? 👋</span>
     </a>
+
+    <button class="back-top" id="backTop" type="button" aria-label="Volver arriba">
+      <i data-lucide="arrow-up"></i>
+    </button>
+
+    <nav class="mobile-bar" aria-label="Acciones rápidas">
+      <a href="#planes">
+        <i data-lucide="layout-grid"></i>
+        Planes
+      </a>
+      <a href="tel:+51967967540">
+        <i data-lucide="phone"></i>
+        Llamar
+      </a>
+      <a class="mb-wa" href="https://wa.me/51967967540?text=Hola%20Connect%20Star%2C%20quiero%20informaci%C3%B3n%20sobre%20sus%20planes." target="_blank" rel="noopener">
+        <i data-lucide="message-circle"></i>
+        WhatsApp
+      </a>
+    </nav>
 
     <script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js"></script>
     <script src="./script.js"></script>

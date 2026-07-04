@@ -245,8 +245,43 @@ const setActiveNav = () => {
   });
 };
 
-window.addEventListener("scroll", setActiveNav, { passive: true });
-setActiveNav();
+/* ---------- Progreso de scroll + header compacto + volver arriba ---------- */
+
+const progressBar = qs(".scroll-progress");
+const backTop = qs("#backTop");
+
+const onScroll = () => {
+  const doc = document.documentElement;
+  const max = doc.scrollHeight - window.innerHeight;
+  const y = window.scrollY;
+
+  if (progressBar && max > 0) {
+    progressBar.style.width = `${Math.min(100, (y / max) * 100)}%`;
+  }
+  header?.classList.toggle("is-scrolled", y > 70);
+  backTop?.classList.toggle("show", y > 700);
+  setActiveNav();
+};
+
+window.addEventListener("scroll", onScroll, { passive: true });
+onScroll();
+
+backTop?.addEventListener("click", () => {
+  window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+});
+
+/* ---------- Burbuja de invitación en WhatsApp flotante ---------- */
+
+const waBubble = qs("#waBubble");
+
+if (waBubble && !sessionStorage.getItem("waBubbleSeen")) {
+  window.setTimeout(() => waBubble.classList.add("show"), 6000);
+  window.setTimeout(() => waBubble.classList.remove("show"), 18000);
+  qs(".floating-wa")?.addEventListener("click", () => {
+    waBubble.classList.remove("show");
+    sessionStorage.setItem("waBubbleSeen", "1");
+  });
+}
 
 /* ---------- Fondo animado de fibra ---------- */
 

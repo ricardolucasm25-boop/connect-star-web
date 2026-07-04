@@ -1,8 +1,9 @@
 # Guía de imágenes — Connect Star Landing
 
-Brief para el diseñador/fotógrafo. La página ya funciona con placeholders de marca:
-**para activar una foto real solo hay que sobreescribir el archivo con el mismo nombre**
-en `assets/img/`. No se toca ninguna línea de código.
+Brief para el diseñador/fotógrafo. La página está en producción con **arte neón
+provisional generado digitalmente** (coherente con el logo). Para activar una foto real
+solo hay que **sobreescribir el archivo con el mismo nombre** en `assets/img/`
+(o subirla desde el panel `/admin.html`). No se toca ninguna línea de código.
 
 ## Reglas generales
 
