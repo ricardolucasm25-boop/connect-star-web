@@ -355,21 +355,10 @@ svg.lucide {
 }
 
 .brand img {
-  width: 44px;
-  height: auto;
-}
-
-.brand-word {
-  font-family: var(--font-display);
-  font-size: 24px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  line-height: 1;
-}
-
-.brand-word b {
-  color: var(--cyan);
-  font-weight: 700;
+  height: 96px;
+  width: auto;
+  max-width: none;
+  margin-block: 0 -8px;
 }
 
 .main-nav {
@@ -1606,7 +1595,7 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .footer-brand img {
-  width: 48px;
+  width: 72px;
 }
 
 .footer-brand p {
@@ -1744,6 +1733,11 @@ input[type="range"]::-moz-range-thumb {
 
   .nav-toggle {
     display: inline-flex;
+  }
+
+  .brand img {
+    height: 84px;
+    margin-block: 0 -6px;
   }
 
   .header-cta span {
@@ -1897,8 +1891,9 @@ input[type="range"]::-moz-range-thumb {
     min-height: 30px;
   }
 
-  .brand-word {
-    font-size: 20px;
+  .brand img {
+    height: 72px;
+    margin-block: 0 -4px;
   }
 
   .hero-section {
