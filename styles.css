@@ -358,7 +358,6 @@ svg.lucide {
   height: 96px;
   width: auto;
   max-width: none;
-  margin-block: 0 -8px;
 }
 
 .main-nav {
@@ -1737,7 +1736,6 @@ input[type="range"]::-moz-range-thumb {
 
   .brand img {
     height: 84px;
-    margin-block: 0 -6px;
   }
 
   .header-cta span {
@@ -1893,7 +1891,6 @@ input[type="range"]::-moz-range-thumb {
 
   .brand img {
     height: 72px;
-    margin-block: 0 -4px;
   }
 
   .hero-section {
