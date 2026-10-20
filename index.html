@@ -6,25 +6,34 @@
     <title>Connect Star | Internet 100% Fibra Óptica en tu hogar</title>
     <meta
       name="description"
-      content="Connect Star: internet 100% fibra óptica desde S/50 con WiFi 6, mesh y TV HD. Promoción 1000 Mbps x 3 meses. Consulta cobertura por WhatsApp y contrata en minutos."
+      content="Connect Star: internet 100% fibra óptica desde S/50 e Internet + TV HD desde S/70. WiFi 6 y mesh en los planes de S/100 y S/130, con promo de 1000 Mbps x 3 meses. Consulta cobertura por WhatsApp."
     />
     <link rel="canonical" href="https://cstar.pe/" />
-    <meta name="theme-color" content="#070522" />
+    <meta name="theme-color" content="#070a1f" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Connect Star | Internet 100% Fibra Óptica" />
     <meta
       property="og:description"
-      content="Planes desde S/50 con WiFi 6, mesh y más de 90 canales HD. Promo 1000 Mbps x 3 meses. Atención directa por WhatsApp."
+      content="Internet desde S/50, Internet + TV HD desde S/70. WiFi 6 y mesh en planes de S/100 y S/130 con promo 1000 Mbps x 3 meses. Atención directa por WhatsApp."
     />
-    <meta property="og:image" content="./assets/img/og-cover.jpg" />
-    <link rel="icon" type="image/png" href="./assets/favicon.png" />
+    <meta property="og:image" content="./assets/img/og-cover.jpg?v=20261020b" />
+    <link rel="icon" type="image/png" href="./assets/favicon.png?v=20261020b" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Fuentes sin bloquear el primer render: styles.css trae respaldos métricos. -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Rajdhani:wght@600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Rajdhani:wght@600;700&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260916" />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Rajdhani:wght@600;700&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
+    <link rel="stylesheet" href="./styles.css?v=20261021" />
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -39,9 +48,6 @@
     </script>
   </head>
   <body>
-    <canvas id="fiberCanvas" aria-hidden="true"></canvas>
-    <div class="scroll-progress" aria-hidden="true"></div>
-
     <!-- Glifo oficial de WhatsApp (sprite reutilizable) -->
     <svg width="0" height="0" style="position: absolute" aria-hidden="true" focusable="false">
       <symbol id="wa-ico" viewBox="0 0 24 24">
@@ -50,28 +56,30 @@
     </svg>
 
     <header class="site-header" id="inicio">
-      <div class="top-strip">
+      <!-- Franja de promo estacional. El texto se edita en script.js (constante PROMO_ESTACIONAL);
+           si esa constante queda vacía, script.js retira esta franja entera. -->
+      <div class="top-strip" id="promoEstacional" hidden>
         <p class="promo-ticker">
-          <span class="live-dot"></span>
-          <span class="marquee-inner"><strong>PROMO:</strong>&nbsp;1000 Mbps x 3 meses en planes seleccionados</span>
+          <span class="live-dot" aria-hidden="true"></span>
+          <span class="promo-text"></span>
         </p>
-        <a href="tel:+51967967540">
+        <button class="promo-cta" type="button" id="promoEstacionalBtn">
+          <svg class="ico-wa" aria-hidden="true"><use href="#wa-ico"></use></svg>
+          <span>Pedir por WhatsApp</span>
+        </button>
+        <a class="strip-phone" href="tel:+51967967540">
           <i data-lucide="phone"></i>
           967 967 540
         </a>
       </div>
 
       <div class="nav-shell">
-        <a class="brand" href="#inicio" aria-label="Connect Star inicio">
-          <img src="./assets/connect-star-logo.webp?v=20260916" alt="" />
-          <span class="brand-word">CONNECT<b>STAR</b></span>
+        <a class="brand" href="#inicio">
+          <img src="./assets/connect-star-logo.webp?v=20261020b" alt="" width="900" height="801" />
+          <span class="brand-word">Connect <b>Star</b></span>
         </a>
 
-        <button class="nav-toggle" type="button" aria-label="Abrir menú" aria-expanded="false">
-          <i data-lucide="menu"></i>
-        </button>
-
-        <nav class="main-nav" aria-label="Navegación principal">
+        <nav class="main-nav" id="mainNav" aria-label="Navegación principal">
           <a href="#planes">Planes</a>
           <a href="#cobertura">Cobertura</a>
           <a href="#beneficios">Beneficios</a>
@@ -81,8 +89,12 @@
 
         <a class="header-cta" href="https://wa.me/51967967540?text=Hola%20Connect%20Star%2C%20quiero%20informaci%C3%B3n%20sobre%20sus%20planes." target="_blank" rel="noopener">
           <svg class="ico-wa" aria-hidden="true"><use href="#wa-ico"></use></svg>
-          WhatsApp
+          <span>WhatsApp</span>
         </a>
+
+        <button class="nav-toggle" type="button" aria-label="Abrir menú" aria-controls="mainNav" aria-expanded="false">
+          <i data-lucide="menu"></i>
+        </button>
       </div>
     </header>
 
@@ -90,29 +102,23 @@
       <!-- ============ HERO ============ -->
       <section class="hero-section" aria-labelledby="heroTitle">
         <div class="hero-grid">
-          <div class="hero-copy reveal-up">
-            <p class="hero-kicker">
-              <span class="live-dot"></span>
-              Internet hogar · 100% fibra óptica
-            </p>
-            <h1 id="heroTitle">
-              Velocidad real<br />
-              <span class="grad-text">para todo tu hogar</span>
-            </h1>
+          <div class="hero-copy">
+            <p class="hero-kicker">Internet hogar · 100% fibra óptica</p>
+            <h1 id="heroTitle">Velocidad real para todo tu hogar</h1>
             <p class="hero-lede">
-              Streaming, gaming, clases y trabajo remoto sin cortes. Planes desde
-              <strong>S/50 al mes</strong> con router WiFi moderno y TV HD.
+              Streaming, gaming, clases y trabajo remoto sin cortes.
+              <strong>Internet desde S/50 al mes.</strong> Internet + TV HD desde S/70.
+              WiFi 6 y Mesh en planes de S/100 y S/130.
               Contrata por WhatsApp en minutos.
             </p>
 
             <div class="hero-actions">
-              <a class="btn btn-primary" href="#planes">
-                <i data-lucide="zap"></i>
-                Ver planes
-              </a>
-              <a class="btn btn-ghost" href="https://wa.me/51967967540?text=Hola%20Connect%20Star%2C%20quiero%20contratar%20un%20plan%20de%20fibra%20%C3%B3ptica." target="_blank" rel="noopener">
+              <a class="btn btn-wa" href="https://wa.me/51967967540?text=Hola%20Connect%20Star%2C%20quiero%20contratar%20un%20plan%20de%20fibra%20%C3%B3ptica." target="_blank" rel="noopener">
                 <svg class="ico-wa" aria-hidden="true"><use href="#wa-ico"></use></svg>
                 Contratar ahora
+              </a>
+              <a class="btn btn-ghost" href="#planes">
+                Ver planes
               </a>
             </div>
 
@@ -123,69 +129,27 @@
             </ul>
           </div>
 
-          <div class="hero-visual reveal-up reveal-delay-1">
+          <div class="hero-visual">
             <figure class="hero-photo">
               <!-- IMAGEN: reemplazar assets/img/hero-hogar.jpg con foto real (ver GUIA-IMAGENES.md) -->
-              <img src="./assets/img/hero-hogar.jpg?v=20260916" alt="Red de fibra óptica Connect Star iluminada" loading="eager" />
+              <img src="./assets/img/hero-hogar.jpg?v=20261020b" alt="Ilustración de haces de fibra óptica luminosos" width="1600" height="1200" loading="eager" fetchpriority="high" />
               <canvas class="hero-fx" aria-hidden="true"></canvas>
-              <figcaption class="float-chip chip-speed">
-                <i data-lucide="zap"></i>
-                <span><strong>Hasta 1000</strong> Mbps</span>
+              <figcaption class="hero-facts">
+                <span><strong>1000 Mbps</strong> 3 primeros meses en S/100 y S/130</span>
+                <span><strong>WiFi 6</strong> + Mesh en S/100 y S/130</span>
               </figcaption>
-              <figcaption class="float-chip chip-wifi">
-                <i data-lucide="wifi"></i>
-                <span><strong>WiFi 6</strong> + Mesh</span>
-              </figcaption>
+              <button class="hero-pause" type="button" id="heroPause" aria-pressed="false">
+                <i data-lucide="pause"></i>
+                <span>Pausar animación</span>
+              </button>
             </figure>
           </div>
         </div>
-
-        <div class="lag-teaser" id="lagTeaser">
-          <span class="tz-dot tz-good" aria-hidden="true"></span>
-          <span class="tz-dot tz-bad" aria-hidden="true"></span>
-          <a class="tz-tip" href="#lag">ese punto rojo es el <b>lag</b> →</a>
-        </div>
-      </section>
-
-      <!-- ============ OFERTAS RÁPIDAS ============ -->
-      <section class="quick-offers reveal-up reveal-delay-2" aria-label="Ofertas destacadas">
-        <a href="#planes" data-plan-jump="Plan S/ 50">
-          <span>Desde</span>
-          <strong>S/50</strong>
-          <small>200 Mbps solo internet</small>
-        </a>
-        <a href="#planes" class="is-hot" data-plan-jump="Plan recomendado S/ 100">
-          <span><i data-lucide="flame"></i> Recomendado</span>
-          <strong>500 Mbps</strong>
-          <small>1000 Mbps x 3 meses + TV HD</small>
-        </a>
-        <a href="#cobertura">
-          <span>Paso 1</span>
-          <strong>Cobertura</strong>
-          <small>consulta tu zona gratis</small>
-        </a>
-      </section>
-
-      <!-- ============ SKIN MUNDIAL 2026 · Sección TEMPORAL: eliminar al terminar la Copa ============ -->
-      <section class="mundial-banner reveal-up" aria-label="Promoción Mundial 2026">
-        <div class="mundial-copy">
-          <span class="mundial-chip"><span class="ball" aria-hidden="true">⚽</span> Mundial 2026</span>
-          <h2>El Mundial se ve mejor con fibra</h2>
-          <p>
-            Partidos en 4K sin cortes y cero lag en el gol. Plan de 500 Mbps navegando a
-            <strong>1000 Mbps</strong> los primeros 3 meses.
-          </p>
-        </div>
-        <button class="btn btn-primary" type="button" data-wa-context="Hola Connect Star, quiero el plan mundialista de 500 Mbps (promo 1000 Mbps x 3 meses) para ver el Mundial sin cortes.">
-          <i data-lucide="zap"></i>
-          Quiero mi plan mundialista
-        </button>
       </section>
 
       <!-- ============ PLANES ============ -->
       <section class="plans-section section-pad" id="planes" aria-labelledby="plansTitle">
-        <div class="section-heading reveal-up">
-          <span class="section-chip">Planes Connect Star</span>
+        <div class="section-heading">
           <h2 id="plansTitle">Internet potente, precios claros, cero letra chica</h2>
           <p>
             Elige tu plan y te llevamos a WhatsApp con la solicitud lista. Un asesor confirma
@@ -193,26 +157,53 @@
           </p>
         </div>
 
-        <div class="plan-controls reveal-up" role="tablist" aria-label="Filtro de planes">
-          <button class="filter-btn is-active" type="button" data-filter="all">
-            <i data-lucide="layout-grid"></i>
-            Todos
-          </button>
-          <button class="filter-btn" type="button" data-filter="internet">
-            <i data-lucide="wifi"></i>
-            Solo internet
-          </button>
-          <button class="filter-btn" type="button" data-filter="tv">
-            <i data-lucide="tv"></i>
-            Internet + TV
-          </button>
+        <div class="plan-controls" role="group" aria-label="Filtro de planes">
+          <button class="filter-btn is-active" type="button" data-filter="all" aria-pressed="true">Todos</button>
+          <button class="filter-btn" type="button" data-filter="internet" aria-pressed="false">Solo internet</button>
+          <button class="filter-btn" type="button" data-filter="tv" aria-pressed="false">Internet + TV</button>
         </div>
 
+        <p class="sr-only" id="planStatus" role="status" aria-live="polite"></p>
+
         <div class="plans-grid">
-          <article class="plan-card reveal-up" data-type="internet" data-plan="Plan S/ 50">
+          <article class="plan-card featured" data-type="tv" data-plan="Plan recomendado S/ 100">
+            <div class="plan-ribbon">Recomendado</div>
             <div class="plan-top">
-              <span>WiFi 5</span>
+              <strong>Internet + TV</strong>
+              <span>WiFi 6</span>
+            </div>
+            <div class="plan-speed">
+              <strong>500</strong>
+              <span>Mbps</span>
+            </div>
+            <p class="plan-promo">
+              ¡Navega a <strong>1000 Mbps</strong> los primeros 3 meses!
+            </p>
+            <div class="plan-price">
+              <span>S/</span>100
+              <small>x mes</small>
+            </div>
+            <ul class="plan-features">
+    
+              <li><i data-lucide="check"></i>Más de 90 canales HD</li>
+              <li><i data-lucide="check"></i>Router WiFi 6 + 1 punto mesh</li>
+              <li><i data-lucide="check"></i>Ideal para gaming y 4K</li>
+            </ul>
+            <div class="plan-ctas">
+              <button class="btn btn-wa btn-plan" type="button" data-whatsapp-plan="Plan recomendado S/ 100 - 500 Mbps con TV, promo 1000 Mbps x 3 meses">
+                <svg class="ico-wa" aria-hidden="true"><use href="#wa-ico"></use></svg>
+                Lo quiero
+              </button>
+              <a class="btn btn-call" href="tel:+51967967540" aria-label="Llamar para contratar el plan recomendado de S/100">
+                <i data-lucide="phone"></i>
+              </a>
+            </div>
+          </article>
+
+          <article class="plan-card" data-type="internet" data-plan="Plan S/ 50">
+            <div class="plan-top">
               <strong>Solo internet</strong>
+              <span>WiFi 5</span>
             </div>
             <div class="plan-speed">
               <strong>200</strong>
@@ -229,7 +220,7 @@
               <li><i data-lucide="check"></i>Soporte por WhatsApp</li>
             </ul>
             <div class="plan-ctas">
-              <button class="btn btn-plan" type="button" data-whatsapp-plan="Plan S/ 50 - 200 Mbps solo internet">
+              <button class="btn btn-wa btn-plan" type="button" data-whatsapp-plan="Plan S/ 50 - 200 Mbps solo internet">
                 <svg class="ico-wa" aria-hidden="true"><use href="#wa-ico"></use></svg>
                 Lo quiero
               </button>
@@ -239,10 +230,10 @@
             </div>
           </article>
 
-          <article class="plan-card reveal-up reveal-delay-1" data-type="tv" data-plan="Plan S/ 70">
+          <article class="plan-card" data-type="tv" data-plan="Plan S/ 70">
             <div class="plan-top">
-              <span>WiFi 5</span>
               <strong>Internet + TV</strong>
+              <span>WiFi 5</span>
             </div>
             <div class="plan-speed">
               <strong>300</strong>
@@ -259,7 +250,7 @@
               <li><i data-lucide="check"></i>Soporte por WhatsApp</li>
             </ul>
             <div class="plan-ctas">
-              <button class="btn btn-plan" type="button" data-whatsapp-plan="Plan S/ 70 - 300 Mbps con TV">
+              <button class="btn btn-wa btn-plan" type="button" data-whatsapp-plan="Plan S/ 70 - 300 Mbps con TV">
                 <svg class="ico-wa" aria-hidden="true"><use href="#wa-ico"></use></svg>
                 Lo quiero
               </button>
@@ -269,52 +260,16 @@
             </div>
           </article>
 
-          <article class="plan-card featured reveal-up reveal-delay-2" data-type="tv" data-plan="Plan recomendado S/ 100">
-            <div class="plan-ribbon"><i data-lucide="flame"></i> Recomendado</div>
+          <article class="plan-card" data-type="tv" data-plan="Plan S/ 130">
             <div class="plan-top">
-              <span>WiFi 6</span>
               <strong>Internet + TV</strong>
-            </div>
-            <div class="plan-speed">
-              <strong>500</strong>
-              <span>Mbps</span>
-            </div>
-            <p class="plan-promo">
-              <i data-lucide="rocket"></i>
-              ¡Navega a <strong>1000 Mbps</strong> los primeros 3 meses!
-            </p>
-            <div class="plan-price">
-              <span>S/</span>100
-              <small>x mes</small>
-            </div>
-            <ul class="plan-features">
-              <li><i data-lucide="check"></i>Promo 1000 Mbps x 3 meses</li>
-              <li><i data-lucide="check"></i>Más de 90 canales HD</li>
-              <li><i data-lucide="check"></i>Router WiFi 6 + 1 punto mesh</li>
-              <li><i data-lucide="check"></i>Ideal para gaming y 4K</li>
-            </ul>
-            <div class="plan-ctas">
-              <button class="btn btn-plan" type="button" data-whatsapp-plan="Plan recomendado S/ 100 - 500 Mbps con TV, promo 1000 Mbps x 3 meses">
-                <svg class="ico-wa" aria-hidden="true"><use href="#wa-ico"></use></svg>
-                Lo quiero
-              </button>
-              <a class="btn btn-call" href="tel:+51967967540" aria-label="Llamar para contratar el plan recomendado de S/100">
-                <i data-lucide="phone"></i>
-              </a>
-            </div>
-          </article>
-
-          <article class="plan-card reveal-up reveal-delay-3" data-type="tv" data-plan="Plan S/ 130">
-            <div class="plan-top">
               <span>WiFi 6</span>
-              <strong>Internet + TV</strong>
             </div>
             <div class="plan-speed">
               <strong>800</strong>
               <span>Mbps</span>
             </div>
             <p class="plan-promo">
-              <i data-lucide="rocket"></i>
               ¡Navega a <strong>1000 Mbps</strong> los primeros 3 meses!
             </p>
             <div class="plan-price">
@@ -322,13 +277,13 @@
               <small>x mes</small>
             </div>
             <ul class="plan-features">
-              <li><i data-lucide="check"></i>Promo 1000 Mbps x 3 meses</li>
+              <li><i data-lucide="check"></i>Soporte por WhatsApp</li>
               <li><i data-lucide="check"></i>Más de 90 canales HD</li>
               <li><i data-lucide="check"></i>Router WiFi 6 + 2 puntos mesh</li>
               <li><i data-lucide="check"></i>Cobertura total del hogar</li>
             </ul>
             <div class="plan-ctas">
-              <button class="btn btn-plan" type="button" data-whatsapp-plan="Plan S/ 130 - 800 Mbps con TV, promo 1000 Mbps x 3 meses">
+              <button class="btn btn-wa btn-plan" type="button" data-whatsapp-plan="Plan S/ 130 - 800 Mbps con TV, promo 1000 Mbps x 3 meses">
                 <svg class="ico-wa" aria-hidden="true"><use href="#wa-ico"></use></svg>
                 Lo quiero
               </button>
@@ -339,16 +294,15 @@
           </article>
         </div>
 
-        <p class="plans-note reveal-up">
+        <p class="plans-note">
           Precios y promociones sujetos a cobertura, disponibilidad técnica y stock de equipos.
         </p>
       </section>
 
       <!-- ============ COBERTURA ============ -->
       <section class="coverage-section section-pad" id="cobertura" aria-labelledby="coverageTitle">
-        <div class="coverage-card reveal-up">
+        <div class="coverage-card">
           <div class="coverage-copy">
-            <span class="section-chip"><i data-lucide="map-pin"></i> Cobertura</span>
             <h2 id="coverageTitle">¿La fibra de Connect Star ya llegó a tu zona?</h2>
             <p>
               Escríbenos tu distrito o una referencia de tu dirección y validamos la factibilidad
@@ -362,10 +316,11 @@
               type="text"
               name="zona"
               placeholder="Ej. Los Olivos, Av. Principal 123"
+              autocomplete="street-address"
               required
             />
-            <button class="btn btn-primary" type="submit">
-              <i data-lucide="search-check"></i>
+            <button class="btn btn-wa" type="submit">
+              <svg class="ico-wa" aria-hidden="true"><use href="#wa-ico"></use></svg>
               Consultar cobertura
             </button>
           </form>
@@ -375,17 +330,13 @@
       <!-- ============ BENEFICIOS ============ -->
       <section class="benefits-section section-pad" id="beneficios" aria-labelledby="benefitsTitle">
         <div class="benefits-layout">
-          <figure class="benefits-photo reveal-up">
+          <figure class="benefits-photo">
             <!-- IMAGEN: reemplazar assets/img/instalacion-tecnico.jpg con foto real (ver GUIA-IMAGENES.md) -->
-            <img src="./assets/img/instalacion-tecnico.jpg" alt="Técnico de Connect Star instalando fibra óptica" loading="lazy" />
-            <figcaption class="float-chip chip-install">
-              <i data-lucide="badge-check"></i>
-              <span><strong>Instalación</strong> profesional</span>
-            </figcaption>
+            <img src="./assets/img/instalacion-tecnico.jpg?v=20261020b" alt="Ilustración de una casa con señal WiFi a la que llega una línea de fibra óptica" width="1200" height="900" loading="lazy" />
+            <figcaption><i data-lucide="badge-check"></i><strong>Instalación</strong> profesional</figcaption>
           </figure>
 
-          <div class="benefits-copy reveal-up reveal-delay-1">
-            <span class="section-chip">Beneficios incluidos</span>
+          <div class="benefits-copy">
             <h2 id="benefitsTitle">Más estabilidad para todos los equipos de casa</h2>
             <p>
               Una experiencia pensada para hogares conectados: video, gaming, clases, trabajo,
@@ -395,23 +346,31 @@
             <div class="benefit-list">
               <article>
                 <i data-lucide="radio-tower"></i>
-                <h3>Fibra hasta tu hogar</h3>
-                <p>Conexión estable que mantiene el rendimiento aun con varios equipos conectados.</p>
+                <div>
+                  <h3>Fibra hasta tu hogar</h3>
+                  <p>Conexión estable que mantiene el rendimiento aun con varios equipos conectados.</p>
+                </div>
               </article>
               <article>
                 <i data-lucide="monitor-play"></i>
-                <h3>TV HD incluida</h3>
-                <p>Planes con más de 90 canales HD para completar tu entretenimiento familiar.</p>
+                <div>
+                  <h3>TV HD incluida</h3>
+                  <p>Planes con más de 90 canales HD para completar tu entretenimiento familiar.</p>
+                </div>
               </article>
               <article>
                 <i data-lucide="arrow-up-down"></i>
-                <h3>Velocidad simétrica</h3>
-                <p>Sube y descarga a la misma velocidad: videollamadas y juegos sin lag.</p>
+                <div>
+                  <h3>Velocidad simétrica</h3>
+                  <p>Sube y descarga a la misma velocidad: videollamadas y juegos sin lag.</p>
+                </div>
               </article>
               <article>
                 <i data-lucide="router"></i>
-                <h3>WiFi moderno</h3>
-                <p>Equipos doble banda, WiFi 6 y puntos mesh según el plan contratado.</p>
+                <div>
+                  <h3>WiFi moderno</h3>
+                  <p>Equipos doble banda, WiFi 6 y puntos mesh según el plan contratado.</p>
+                </div>
               </article>
             </div>
           </div>
@@ -421,8 +380,7 @@
       <!-- ============ EQUIPOS / MESH ============ -->
       <section class="mesh-section section-pad" aria-labelledby="meshTitle">
         <div class="mesh-layout">
-          <div class="mesh-copy reveal-up">
-            <span class="section-chip"><i data-lucide="wifi"></i> Señal en toda la casa</span>
+          <div class="mesh-copy">
             <h2 id="meshTitle">WiFi 6 + Mesh: adiós a las zonas muertas</h2>
             <p>
               Con los puntos mesh de los planes de 500 y 800 Mbps, la señal viaja de habitación en
@@ -433,30 +391,26 @@
               <li><i data-lucide="check-circle-2"></i>Cambio automático al punto más cercano</li>
               <li><i data-lucide="check-circle-2"></i>Instalación y configuración incluidas</li>
             </ul>
-            <a class="btn btn-ghost" href="https://wa.me/51967967540?text=Hola%20Connect%20Star%2C%20quiero%20saber%20m%C3%A1s%20del%20WiFi%206%20con%20mesh." target="_blank" rel="noopener">
+            <a class="btn btn-wa" href="https://wa.me/51967967540?text=Hola%20Connect%20Star%2C%20quiero%20saber%20m%C3%A1s%20del%20WiFi%206%20con%20mesh." target="_blank" rel="noopener">
               <svg class="ico-wa" aria-hidden="true"><use href="#wa-ico"></use></svg>
               Quiero saber más
             </a>
           </div>
-          <figure class="mesh-photo reveal-up reveal-delay-1">
+          <figure class="mesh-photo">
             <!-- IMAGEN: reemplazar assets/img/router-mesh.jpg con foto real (ver GUIA-IMAGENES.md) -->
-            <img src="./assets/img/router-mesh.jpg" alt="Router WiFi 6 y punto mesh de Connect Star" loading="lazy" />
-            <span class="pulse-ring pr-1" aria-hidden="true"></span>
-            <span class="pulse-ring pr-2" aria-hidden="true"></span>
-            <span class="pulse-ring pr-3" aria-hidden="true"></span>
+            <img src="./assets/img/router-mesh.jpg?v=20261020b" alt="Ilustración de un router WiFi con antenas y un punto mesh conectado" width="1200" height="900" loading="lazy" />
           </figure>
         </div>
       </section>
 
       <!-- ============ COMPARADOR ============ -->
       <section class="compare-section section-pad" id="comparador" aria-labelledby="compareTitle">
-        <div class="section-heading reveal-up">
-          <span class="section-chip"><i data-lucide="gauge"></i> Comparador</span>
+        <div class="section-heading">
           <h2 id="compareTitle">¿Cuánto mejoraría tu internet?</h2>
           <p>Mueve la barra a la velocidad que tienes hoy y mira la diferencia con Connect Star.</p>
         </div>
 
-        <div class="compare-card reveal-up">
+        <div class="compare-card">
           <div class="compare-input">
             <label for="speedRange">
               Tu velocidad actual:
@@ -464,8 +418,19 @@
             </label>
             <input id="speedRange" type="range" min="5" max="200" step="5" value="30" aria-label="Tu velocidad actual en megabits" />
             <div class="range-marks" aria-hidden="true"><span>5</span><span>100</span><span>200 Mbps</span></div>
+
+            <div class="compare-vs" aria-hidden="true">
+              <div class="vs-row">
+                <span>Hoy</span>
+                <div class="bar"><i id="barNow"></i></div>
+              </div>
+              <div class="vs-row">
+                <span>Connect Star</span>
+                <div class="bar"><i class="bar-cs"></i></div>
+              </div>
+            </div>
+
             <p class="speedtest-hint">
-              <i data-lucide="gauge"></i>
               <span>¿No sabes cuánto tienes hoy?</span>
               <a href="https://www.speedtest.net/" target="_blank" rel="noopener nofollow">
                 Mídelo con Speedtest® by Ookla
@@ -474,46 +439,36 @@
             </p>
           </div>
 
-          <div class="compare-vs" aria-hidden="true">
-            <div class="vs-row">
-              <span>Hoy</span>
-              <div class="bar"><i id="barNow"></i></div>
+          <div class="compare-side">
+            <div class="compare-results">
+              <div>
+                <strong><span id="cmpX">16,7</span>×</strong>
+                <span>la velocidad actual con el plan de 500 Mbps</span>
+              </div>
+              <div>
+                <strong id="cmpGame">16 min</strong>
+                <span>en bajar un juego de 60 GB · hoy te toma <em id="cmpGameNow">4 h 27 min</em></span>
+              </div>
+              <div>
+                <strong><span id="cmpStreams">20</span></strong>
+                <span>pantallas 4K a la vez · hoy soportas <em id="cmpStreamsNow">1</em></span>
+              </div>
             </div>
-            <div class="vs-row">
-              <span>Connect Star</span>
-              <div class="bar"><i class="bar-cs"></i></div>
-            </div>
-          </div>
 
-          <div class="compare-results">
-            <div>
-              <strong><span id="cmpX">17</span>x</strong>
-              <span>más velocidad con el plan de 500 Mbps</span>
-            </div>
-            <div>
-              <strong id="cmpGame">16 min</strong>
-              <span>en bajar un juego de 60 GB · hoy te toma <em id="cmpGameNow">4 h 27 min</em></span>
-            </div>
-            <div>
-              <strong><span id="cmpStreams">20</span></strong>
-              <span>pantallas 4K a la vez · hoy soportas <em id="cmpStreamsNow">1</em></span>
-            </div>
+            <button class="btn btn-wa compare-cta" type="button" id="compareCta">
+              <svg class="ico-wa" aria-hidden="true"><use href="#wa-ico"></use></svg>
+              Quiero mejorar mi internet
+            </button>
+            <p class="compare-note">
+              Cálculos referenciales sobre el plan de 500 Mbps (promo 1000 Mbps x 3 meses según disponibilidad).
+            </p>
           </div>
-
-          <button class="btn btn-primary compare-cta" type="button" id="compareCta">
-            <svg class="ico-wa" aria-hidden="true"><use href="#wa-ico"></use></svg>
-            Quiero mejorar mi internet
-          </button>
-          <p class="compare-note">
-            Cálculos referenciales sobre el plan de 500 Mbps (promo 1000 Mbps x 3 meses según disponibilidad).
-          </p>
         </div>
       </section>
 
       <!-- ============ SIMULADOR DE LAG ============ -->
       <section class="lag-section section-pad" id="lag" aria-labelledby="lagTitle">
-        <div class="section-heading reveal-up">
-          <span class="section-chip"><i data-lucide="crosshair"></i> Simulador de lag</span>
+        <div class="section-heading">
           <h2 id="lagTitle">Más megas no siempre es mejor internet</h2>
           <p>
             Te pueden vender 1000 o 2000 Mbps con un ping desastroso: si la red está saturada,
@@ -521,8 +476,8 @@
           </p>
         </div>
 
-        <div class="lag-card reveal-up">
-          <div class="lag-arena" id="lagArena">
+        <div class="lag-card">
+          <div class="lag-arena" id="lagArena" aria-hidden="true">
             <div class="lag-pane">
               <header>
                 Fibra Connect Star
@@ -548,6 +503,11 @@
             tú con una red congestionada.
           </p>
 
+          <p class="lag-static" id="lagStatic" hidden>
+            Con movimiento reducido no animamos los puntos. Con <strong>+<span id="lagStaticMs">180</span> ms</strong>
+            de congestión, cada acción se refleja ese tiempo después en la red saturada; con fibra estable, casi al instante.
+          </p>
+
           <div class="lag-control">
             <label for="lagRange">Congestión de la otra red</label>
             <input id="lagRange" type="range" min="60" max="400" step="20" value="180" aria-label="Nivel de congestión simulada en milisegundos" />
@@ -555,7 +515,7 @@
           </div>
         </div>
 
-        <div class="lag-facts reveal-up reveal-delay-1">
+        <div class="lag-facts">
           <article>
             <i data-lucide="crosshair"></i>
             <h3>Ping bajo y estable</h3>
@@ -573,130 +533,98 @@
           </article>
         </div>
 
-        <div class="lag-cta reveal-up">
-          <button class="btn btn-primary" type="button" data-wa-context="Hola Connect Star, quiero internet estable y sin lag para gaming, streaming y videollamadas. ¿Validamos cobertura en mi zona?">
-            <i data-lucide="zap"></i>
+        <div class="lag-cta">
+          <button class="btn btn-wa" type="button" data-wa-context="Hola Connect Star, quiero internet estable y sin lag para gaming, streaming y videollamadas. ¿Validamos cobertura en mi zona?">
+            <svg class="ico-wa" aria-hidden="true"><use href="#wa-ico"></use></svg>
             Quiero internet sin lag
           </button>
         </div>
       </section>
 
-      <!-- ============ MÉTRICAS ============ -->
-      <section class="stats-section" aria-label="Connect Star en números">
-        <div class="stats-grid reveal-up">
-          <div>
-            <strong><span class="counter" data-target="1000">0</span> Mbps</strong>
-            <span>velocidad máxima en promoción</span>
-          </div>
-          <div>
-            <strong><span class="counter" data-target="90">0</span>+</strong>
-            <span>canales HD disponibles</span>
-          </div>
-          <div>
-            <strong>100%</strong>
-            <span>fibra óptica hasta tu hogar</span>
-          </div>
-          <div>
-            <strong>WiFi 6</strong>
-            <span>con mesh según plan</span>
-          </div>
-        </div>
-      </section>
-
       <!-- ============ TESTIMONIOS ============ -->
       <section class="reviews-section section-pad" id="opiniones" aria-labelledby="reviewsTitle">
-        <div class="section-heading reveal-up">
-          <span class="section-chip">Opiniones</span>
+        <div class="section-heading">
           <h2 id="reviewsTitle">Hogares que ya viven la experiencia Connect Star</h2>
         </div>
 
         <div class="reviews-grid">
-          <article class="review-card reveal-up">
-            <div class="stars" aria-label="5 de 5 estrellas">★★★★★</div>
+          <blockquote class="review-card">
+            <div class="stars" role="img" aria-label="5 de 5 estrellas">★★★★★</div>
             <p>
               “Migré desde otro operador y la diferencia se nota: las videollamadas ya no se
               congelan y el ping en juegos bajó muchísimo.”
             </p>
             <footer>
-              <!-- IMAGEN: reemplazar assets/img/testimonio-1.jpg con foto real (ver GUIA-IMAGENES.md) -->
-              <img src="./assets/img/testimonio-1.jpg" alt="" loading="lazy" />
               <div>
                 <strong>Cliente residencial</strong>
                 <span>Plan 500 Mbps + TV</span>
               </div>
             </footer>
-          </article>
+          </blockquote>
 
-          <article class="review-card reveal-up reveal-delay-1">
-            <div class="stars" aria-label="5 de 5 estrellas">★★★★★</div>
+          <blockquote class="review-card">
+            <div class="stars" role="img" aria-label="5 de 5 estrellas">★★★★★</div>
             <p>
               “La instalación fue rápida y me explicaron todo. Con el mesh por fin hay señal en el
               segundo piso de la casa.”
             </p>
             <footer>
-              <!-- IMAGEN: reemplazar assets/img/testimonio-2.jpg con foto real (ver GUIA-IMAGENES.md) -->
-              <img src="./assets/img/testimonio-2.jpg" alt="" loading="lazy" />
               <div>
                 <strong>Cliente residencial</strong>
                 <span>Plan 800 Mbps + TV</span>
               </div>
             </footer>
-          </article>
+          </blockquote>
 
-          <article class="review-card reveal-up reveal-delay-2">
-            <div class="stars" aria-label="5 de 5 estrellas">★★★★★</div>
+          <blockquote class="review-card">
+            <div class="stars" role="img" aria-label="5 de 5 estrellas">★★★★★</div>
             <p>
               “Todo el proceso fue por WhatsApp: consulté cobertura, elegí plan y coordiné la
               instalación en la misma conversación.”
             </p>
             <footer>
-              <!-- IMAGEN: reemplazar assets/img/testimonio-3.jpg con foto real (ver GUIA-IMAGENES.md) -->
-              <img src="./assets/img/testimonio-3.jpg" alt="" loading="lazy" />
               <div>
                 <strong>Cliente residencial</strong>
                 <span>Plan 200 Mbps</span>
               </div>
             </footer>
-          </article>
-        </div>
-      </section>
-
-      <!-- ============ CONFIANZA OPERATIVA ============ -->
-      <section class="trustops-section" aria-label="Atención y canales oficiales">
-        <div class="trustops-grid reveal-up">
-          <article>
-            <i data-lucide="clock-3"></i>
-            <div>
-              <strong id="onlineState"><span class="live-dot"></span>En línea ahora</strong>
-              <span>Atención comercial todos los días de 8:00 a. m. a 10:00 p. m.</span>
-            </div>
-          </article>
-          <article>
-            <i data-lucide="badge-check"></i>
-            <div>
-              <strong>Un solo canal oficial</strong>
-              <span>WhatsApp y llamadas únicamente al 967 967 540.</span>
-            </div>
-          </article>
-          <article>
-            <i data-lucide="shield-alert"></i>
-            <div>
-              <strong>Compra segura</strong>
-              <span>Nunca te pediremos contraseñas ni códigos de verificación.</span>
-            </div>
-          </article>
+          </blockquote>
         </div>
       </section>
 
       <!-- ============ CONTACTO ============ -->
       <section class="contact-section section-pad" id="contacto" aria-labelledby="contactTitle">
-        <div class="contact-copy reveal-up">
-          <span class="section-chip">Contrata hoy</span>
+        <div class="contact-copy">
           <h2 id="contactTitle">Te ayudamos a elegir el mejor plan para tu zona</h2>
           <p>
             Completa tus datos y abrimos WhatsApp con la solicitud lista para que un asesor te
             atienda de inmediato.
           </p>
+
+          <ul class="trustops-list" aria-label="Atención y canales oficiales">
+            <li>
+              <i data-lucide="clock-3"></i>
+              <div>
+                <strong id="onlineState"><span class="live-dot" aria-hidden="true"></span>En línea ahora</strong>
+                <span>Atención comercial todos los días de 8:00 a. m. a 10:00 p. m.</span>
+              </div>
+            </li>
+            <li>
+              <i data-lucide="badge-check"></i>
+              <div>
+                <strong>Un solo canal oficial</strong>
+                <span>WhatsApp y llamadas únicamente al 967 967 540.</span>
+              </div>
+            </li>
+            <li>
+              <i data-lucide="shield-alert"></i>
+              <div>
+                <strong>Compra segura</strong>
+                <span>Nunca te pediremos contraseñas ni códigos de verificación.</span>
+              </div>
+            </li>
+          </ul>
+
           <div class="contact-points">
             <span><i data-lucide="clock-3"></i>Respuesta comercial rápida</span>
             <span><i data-lucide="shield-check"></i>Instalación sujeta a evaluación técnica</span>
@@ -704,14 +632,16 @@
           </div>
         </div>
 
-        <form class="lead-form reveal-up reveal-delay-1" id="leadForm">
+        <form class="lead-form" id="leadForm">
           <label>
             DNI o RUC <em>(opcional)</em>
-            <input type="text" name="documento" inputmode="numeric" placeholder="Ej. 12345678" />
+            <input type="text" name="documento" inputmode="numeric" autocomplete="off" placeholder="Ej. 12345678" aria-describedby="docHelp" />
+            <small id="docHelp">8 dígitos (DNI) u 11 dígitos (RUC).</small>
           </label>
           <label>
             Celular
-            <input type="tel" name="telefono" inputmode="tel" placeholder="Ej. 967967540" required />
+            <input type="tel" name="telefono" inputmode="tel" autocomplete="tel" placeholder="Ej. 967967540" aria-describedby="telHelp" required />
+            <small id="telHelp">9 dígitos; el prefijo +51 es opcional.</small>
           </label>
           <label>
             Distrito o zona
@@ -719,19 +649,20 @@
           </label>
           <label>
             Plan de interés
-            <select name="plan">
-              <option>Plan recomendado S/ 100 - 500 Mbps + TV</option>
-              <option>Plan S/ 50 - 200 Mbps solo internet</option>
-              <option>Plan S/ 70 - 300 Mbps + TV</option>
-              <option>Plan S/ 130 - 800 Mbps + TV</option>
+            <select name="plan" aria-describedby="planHelp">
+              <option>500 Mbps + TV · S/100</option>
+              <option>200 Mbps solo internet · S/50</option>
+              <option>300 Mbps + TV · S/70</option>
+              <option>800 Mbps + TV · S/130</option>
               <option>Quiero asesoría</option>
             </select>
+            <small id="planHelp">El plan de 500 Mbps + TV · S/100 es el recomendado.</small>
           </label>
           <label class="check-row">
             <input type="checkbox" name="privacidad" required />
             <span>Acepto ser contactado por Connect Star para validar cobertura.</span>
           </label>
-          <button class="btn btn-primary form-submit" type="submit">
+          <button class="btn btn-wa form-submit" type="submit">
             <svg class="ico-wa" aria-hidden="true"><use href="#wa-ico"></use></svg>
             Enviar por WhatsApp
           </button>
@@ -740,15 +671,14 @@
 
       <!-- ============ FAQ ============ -->
       <section class="faq-section section-pad" aria-labelledby="faqTitle">
-        <div class="section-heading reveal-up">
-          <span class="section-chip">Preguntas frecuentes</span>
+        <div class="section-heading">
           <h2 id="faqTitle">Información rápida antes de contratar</h2>
         </div>
 
-        <div class="faq-list reveal-up">
+        <div class="faq-list">
           <details>
             <summary>¿La instalación está incluida?</summary>
-            <p>La instalación está sujeta a evaluación técnica, cobertura y disponibilidad de equipos. Un asesor te confirma las condiciones por WhatsApp antes de agendar.</p>
+            <p>La instalación está sujeta a evaluación técnica, cobertura y disponibilidad de equipos. Si ves una promoción de instalación en la franja superior, se coordina por WhatsApp: un asesor te confirma las condiciones de tu caso antes de agendar.</p>
           </details>
           <details>
             <summary>¿Los planes incluyen TV?</summary>
@@ -774,7 +704,7 @@
       </section>
 
       <!-- ============ ¿YA ERES CLIENTE? ============ -->
-      <section class="client-strip reveal-up" aria-label="Clientes actuales">
+      <section class="client-strip" aria-label="Clientes actuales">
         <div>
           <h2>¿Ya eres cliente de Connect Star?</h2>
           <p>No hagas cola en el canal de ventas: te atendemos directo.</p>
@@ -793,8 +723,8 @@
     </main>
 
     <footer class="site-footer">
-      <div>
-        <img src="./assets/connect-star-logo.webp?v=20260916" alt="Connect Star" />
+      <div class="footer-brand">
+        <img src="./assets/connect-star-logo.webp?v=20261020b" alt="Connect Star" width="900" height="801" />
         <p>Internet 100% fibra óptica para hogares conectados.</p>
         <a class="footer-phone" href="tel:+51967967540"><i data-lucide="phone"></i> 967 967 540</a>
       </div>
@@ -813,8 +743,6 @@
 
     <a class="floating-wa" href="https://wa.me/51967967540?text=Hola%20Connect%20Star%2C%20quiero%20informaci%C3%B3n%20sobre%20sus%20planes." target="_blank" rel="noopener" aria-label="Escribir por WhatsApp">
       <svg class="ico-wa" aria-hidden="true"><use href="#wa-ico"></use></svg>
-      <span class="wa-pulse" aria-hidden="true"></span>
-      <span class="wa-bubble" id="waBubble">¿Validamos la cobertura de tu zona? 👋</span>
     </a>
 
     <button class="back-top" id="backTop" type="button" aria-label="Volver arriba">
@@ -836,7 +764,7 @@
       </a>
     </nav>
 
-    <script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js"></script>
-    <script src="./script.js?v=20260916"></script>
+    <script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js" defer></script>
+    <script src="./script.js?v=20261021" defer></script>
   </body>
 </html>

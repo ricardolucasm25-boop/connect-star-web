@@ -1,8 +1,19 @@
 const WHATSAPP_NUMBER = "51967967540";
 
+/* ---------- Promo estacional (franja superior) ----------
+   Para cambiar la franja edita SOLO el texto entre comillas de PROMO_ESTACIONAL.
+   Ejemplos: "Navidad Connect Star: instalación gratis hasta el 31 de diciembre"
+             "Fiestas Patrias: primer mes a mitad de precio"
+   Si la dejas vacía ("") la franja desaparece de la página.
+   El botón de la franja abre WhatsApp citando ese mismo texto.
+   Para cambiar la promo fija de 1000 Mbps o los planes, edita las tarjetas de index.html. */
+const PROMO_ESTACIONAL = "Navidad Connect Star: instalación gratis hasta el 31 de diciembre";
+
 const qs = (selector, scope = document) => scope.querySelector(selector);
 const qsa = (selector, scope = document) => [...scope.querySelectorAll(selector)];
-const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+/* Se consulta en vivo (no una sola vez): el sistema puede cambiar la preferencia con la página abierta. */
+const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+const onMotionChange = (handler) => motionQuery.addEventListener?.("change", handler);
 
 if (window.lucide) {
   window.lucide.createIcons();
@@ -12,110 +23,84 @@ const openWhatsApp = (text) => {
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`, "_blank", "noopener");
 };
 
+/* ---------- Franja de promo estacional ---------- */
+
+const promoStrip = qs("#promoEstacional");
+if (promoStrip) {
+  const promoText = PROMO_ESTACIONAL.trim();
+  if (promoText) {
+    qs(".promo-text", promoStrip).textContent = promoText;
+    qs("#promoEstacionalBtn").addEventListener("click", () =>
+      openWhatsApp(`Hola Connect Star, vi la promoción "${promoText}" y quiero aprovecharla. ¿Validamos cobertura?`)
+    );
+    promoStrip.hidden = false;
+  } else {
+    promoStrip.remove();
+  }
+}
+
 /* ---------- Menú móvil ---------- */
 
 const header = qs(".site-header");
 const navToggle = qs(".nav-toggle");
 const mainNav = qs(".main-nav");
 
-navToggle?.addEventListener("click", () => {
-  const isOpen = header.classList.toggle("is-open");
-  navToggle.setAttribute("aria-expanded", String(isOpen));
+/* La cabecera es pegajosa y su altura depende de la franja (0, 1 o 2 líneas):
+   el scroll-padding de las anclas sigue la altura real para que las secciones no queden tapadas. */
+if (header) {
+  const syncScrollPadding = () => {
+    document.documentElement.style.scrollPaddingTop = `${header.offsetHeight + 16}px`;
+  };
+  syncScrollPadding();
+  new ResizeObserver(syncScrollPadding).observe(header);
+}
 
+const setMenu = (isOpen) => {
+  header.classList.toggle("is-open", isOpen);
+  navToggle?.setAttribute("aria-expanded", String(isOpen));
+  navToggle?.setAttribute("aria-label", isOpen ? "Cerrar menú" : "Abrir menú");
+
+  /* scrollHeight es la altura natural del contenido aunque max-height lo esté recortando.
+     offsetHeight se leía al inicio de la transición (max-height: 0) y dejaba el menú en 35 px. */
   if (isOpen && mainNav) {
-    header.style.setProperty("--mobile-nav-height", `${mainNav.offsetHeight + 8}px`);
+    header.style.setProperty("--mobile-nav-height", `${mainNav.scrollHeight + 2}px`);
+  }
+};
+
+navToggle?.addEventListener("click", () => setMenu(!header.classList.contains("is-open")));
+
+header?.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && header.classList.contains("is-open")) {
+    setMenu(false);
+    navToggle?.focus();
   }
 });
 
 qsa(".main-nav a, .header-cta").forEach((link) => {
-  link.addEventListener("click", () => {
-    header.classList.remove("is-open");
-    navToggle?.setAttribute("aria-expanded", "false");
-  });
+  link.addEventListener("click", () => setMenu(false));
 });
-
-/* ---------- Animaciones de entrada ---------- */
-
-const revealItems = qsa(".reveal-up");
-
-if (prefersReducedMotion) {
-  revealItems.forEach((item) => item.classList.add("is-visible"));
-} else {
-  const revealObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("is-visible");
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    },
-    { threshold: 0.16 }
-  );
-
-  revealItems.forEach((item) => revealObserver.observe(item));
-}
-
-/* ---------- Contadores animados ---------- */
-
-const counters = qsa(".counter");
-let countersPlayed = false;
-
-const playCounters = () => {
-  if (countersPlayed) return;
-  countersPlayed = true;
-
-  counters.forEach((counter) => {
-    const target = Number(counter.dataset.target || "0");
-    const duration = 1300;
-    const start = performance.now();
-
-    const tick = (now) => {
-      const progress = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      counter.textContent = Math.round(target * eased).toLocaleString("es-PE");
-
-      if (progress < 1) {
-        requestAnimationFrame(tick);
-      }
-    };
-
-    requestAnimationFrame(tick);
-  });
-};
-
-const statsBox = qs(".stats-grid");
-if (statsBox && !prefersReducedMotion) {
-  const counterObserver = new IntersectionObserver(
-    (entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) {
-        playCounters();
-        counterObserver.disconnect();
-      }
-    },
-    { threshold: 0.45 }
-  );
-  counterObserver.observe(statsBox);
-} else {
-  counters.forEach((counter) => {
-    counter.textContent = Number(counter.dataset.target || "0").toLocaleString("es-PE");
-  });
-}
 
 /* ---------- Filtro de planes ---------- */
 
 const planCards = qsa(".plan-card");
 const filterButtons = qsa(".filter-btn");
+const planStatus = qs("#planStatus");
 
 filterButtons.forEach((button) => {
   button.addEventListener("click", () => {
     const filter = button.dataset.filter;
-    filterButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+    filterButtons.forEach((item) => {
+      item.classList.toggle("is-active", item === button);
+      item.setAttribute("aria-pressed", String(item === button));
+    });
 
+    let shown = 0;
     planCards.forEach((card) => {
       const shouldShow = filter === "all" || card.dataset.type === filter;
       card.classList.toggle("is-hidden", !shouldShow);
+      if (shouldShow) shown += 1;
     });
+    if (planStatus) planStatus.textContent = `Mostrando ${shown} ${shown === 1 ? "plan" : "planes"}`;
   });
 });
 
@@ -125,7 +110,7 @@ const selectPlan = (planName) => {
     card.classList.toggle("is-selected", isMatch);
 
     if (isMatch) {
-      card.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "center" });
+      card.scrollIntoView({ behavior: motionQuery.matches ? "auto" : "smooth", block: "center" });
     }
   });
 
@@ -138,29 +123,10 @@ qsa("[data-plan-jump]").forEach((link) => {
   link.addEventListener("click", (event) => {
     event.preventDefault();
     const planName = link.dataset.planJump;
-    qs("#planes")?.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth" });
-    window.setTimeout(() => selectPlan(planName), prefersReducedMotion ? 0 : 500);
+    qs("#planes")?.scrollIntoView({ behavior: motionQuery.matches ? "auto" : "smooth" });
+    window.setTimeout(() => selectPlan(planName), motionQuery.matches ? 0 : 500);
   });
 });
-
-/* ---------- Efecto tilt en tarjetas ---------- */
-
-if (!prefersReducedMotion) {
-  planCards.forEach((card) => {
-    card.addEventListener("mousemove", (event) => {
-      const rect = card.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
-      const rotateY = ((x / rect.width) - 0.5) * 6;
-      const rotateX = ((y / rect.height) - 0.5) * -6;
-      card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-4px)`;
-    });
-
-    card.addEventListener("mouseleave", () => {
-      card.style.transform = "";
-    });
-  });
-}
 
 /* ---------- WhatsApp por plan ---------- */
 
@@ -202,7 +168,9 @@ if (speedRange) {
     const current = Number(speedRange.value);
 
     qs("#curSpeed").textContent = current;
-    qs("#cmpX").textContent = Math.max(1, Math.round(PLAN_MBPS / current));
+    // hasta un decimal: redondear a entero llegaba a exagerar 2,5x como 3x
+    const times = Math.max(1, Math.round((PLAN_MBPS / current) * 10) / 10);
+    qs("#cmpX").textContent = String(times).replace(".", ",");
     qs("#cmpGame").textContent = fmtTime(GAME_MB / PLAN_MBPS);
     qs("#cmpGameNow").textContent = fmtTime(GAME_MB / current);
     qs("#cmpStreams").textContent = Math.floor(PLAN_MBPS / 25);
@@ -226,7 +194,7 @@ if (speedRange) {
 
 const lagArena = qs("#lagArena");
 
-if (lagArena && !prefersReducedMotion) {
+if (lagArena) {
   const dotGood = qs("#dotGood");
   const dotBad = qs("#dotBad");
   const lagRange = qs("#lagRange");
@@ -237,9 +205,15 @@ if (lagArena && !prefersReducedMotion) {
   const history = []; // posiciones relativas {t, x, y} con x/y en 0..1
   let lastPos = { x: 0.5, y: 0.5 };
 
+  const lagStatic = qs("#lagStatic");
+  const lagStaticMs = qs("#lagStaticMs");
+  const lagHint = qs(".lag-hint");
+
+  // La cifra responde siempre; con movimiento reducido se sustituye la animación por una explicación estática.
   lagRange?.addEventListener("input", () => {
     lagMs = Number(lagRange.value);
     if (lagVal) lagVal.textContent = lagMs;
+    if (lagStaticMs) lagStaticMs.textContent = lagMs;
   });
 
   const record = (event) => {
@@ -264,81 +238,75 @@ if (lagArena && !prefersReducedMotion) {
     return history[0] || lastPos;
   };
 
+  // Medidas del campo cacheadas: leerlas en cada frame fuerza reflow.
+  let fieldW = 0;
+  let fieldH = 0;
+  const measure = () => {
+    const field = fields[0];
+    if (!field) return;
+    fieldW = field.clientWidth;
+    fieldH = field.clientHeight;
+  };
+  measure();
+  window.addEventListener("resize", measure, { passive: true });
+
   const place = (dot, pos) => {
-    const field = dot.parentElement;
-    dot.style.transform = `translate(${pos.x * field.clientWidth}px, ${pos.y * field.clientHeight}px)`;
+    dot.style.transform = `translate(${pos.x * fieldW}px, ${pos.y * fieldH}px)`;
   };
 
+  let running = false;
+  let inView = false;
+  let rafId = 0;
   const tick = () => {
+    if (!running) return;
     const now = performance.now();
     // bufferbloat: el retraso ondula, no es constante
     const wobble = 1 + 0.35 * Math.sin(now / 300);
     place(dotGood, lastPos);
     place(dotBad, positionAt(now - lagMs * wobble));
-    requestAnimationFrame(tick);
+    rafId = requestAnimationFrame(tick);
+  };
+  const start = () => {
+    if (running || motionQuery.matches) return;
+    running = true;
+    measure();
+    rafId = requestAnimationFrame(tick);
+  };
+  const stop = () => {
+    running = false;
+    cancelAnimationFrame(rafId);
   };
 
-  tick();
-}
+  const applyLagMotion = () => {
+    const reduced = motionQuery.matches;
+    lagArena.hidden = reduced;
+    if (lagHint) lagHint.hidden = reduced;
+    if (lagStatic) lagStatic.hidden = !reduced;
+    if (reduced) stop();
+    else if (inView && !document.hidden) start();
+  };
 
-/* ---------- Teaser de lag en el hero (solo desktop) ---------- */
-
-const heroSection = qs(".hero-section");
-const lagTeaser = qs("#lagTeaser");
-
-if (
-  heroSection &&
-  lagTeaser &&
-  !prefersReducedMotion &&
-  window.matchMedia("(hover: hover) and (pointer: fine)").matches
-) {
-  const tzGood = qs(".tz-good", lagTeaser);
-  const tzBad = qs(".tz-bad", lagTeaser);
-  const tzTip = qs(".tz-tip", lagTeaser);
-  const trail = [];
-  let cursor = null;
-  let playStart = 0;
-
-  heroSection.addEventListener("pointermove", (event) => {
-    const rect = heroSection.getBoundingClientRect();
-    cursor = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-    trail.push({ t: performance.now(), ...cursor });
-    if (trail.length > 200) trail.splice(0, trail.length - 200);
-    if (!playStart) playStart = performance.now();
-    heroSection.classList.add("is-playing");
+  // Solo anima cuando el simulador está en pantalla.
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          inView = e.isIntersecting;
+          if (inView) start();
+          else stop();
+        }),
+      { threshold: 0.1 }
+    ).observe(lagArena);
+  } else {
+    inView = true;
+    start();
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stop();
+    else if (lagArena.getBoundingClientRect().top < window.innerHeight) start();
   });
-
-  heroSection.addEventListener("pointerleave", () => {
-    heroSection.classList.remove("is-playing");
-    tzTip.classList.remove("show");
-    trail.length = 0;
-    cursor = null;
-    playStart = 0;
-  });
-
-  const trailAt = (time) => {
-    for (let i = trail.length - 1; i >= 0; i -= 1) {
-      if (trail[i].t <= time) return trail[i];
-    }
-    return cursor;
-  };
-
-  const teaserTick = () => {
-    if (cursor) {
-      const now = performance.now();
-      const wobble = 1 + 0.35 * Math.sin(now / 300);
-      const late = trailAt(now - 230 * wobble) || cursor;
-
-      tzGood.style.transform = `translate(${cursor.x}px, ${cursor.y}px)`;
-      tzBad.style.transform = `translate(${late.x}px, ${late.y}px)`;
-      tzTip.style.transform = `translate(${late.x + 16}px, ${late.y + 14}px)`;
-
-      if (playStart && now - playStart > 1300) tzTip.classList.add("show");
-    }
-    requestAnimationFrame(teaserTick);
-  };
-
-  teaserTick();
+  onMotionChange(applyLagMotion);
+  applyLagMotion();
 }
 
 /* ---------- Animación de velocidad en el hero (haces de fibra) ---------- */
@@ -346,7 +314,7 @@ if (
 const heroFx = qs(".hero-fx");
 const heroPhoto = qs(".hero-photo");
 
-if (heroFx && heroPhoto && !prefersReducedMotion) {
+if (heroFx && heroPhoto) {
   const ctx = heroFx.getContext("2d");
   let W = 0;
   let H = 0;
@@ -420,7 +388,8 @@ if (heroFx && heroPhoto && !prefersReducedMotion) {
   };
 
   const resize = () => {
-    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    // En pantallas chicas basta 1.5x: la mitad de píxeles por frame.
+    DPR = Math.min(window.devicePixelRatio || 1, window.innerWidth < 700 ? 1.5 : 2);
     const rect = heroFx.getBoundingClientRect();
     W = rect.width;
     H = rect.height;
@@ -451,9 +420,9 @@ if (heroFx && heroPhoto && !prefersReducedMotion) {
 
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
     const bg = ctx.createLinearGradient(0, 0, W, H);
-    bg.addColorStop(0, "#05041c");
-    bg.addColorStop(0.55, "#0d0b38");
-    bg.addColorStop(1, "#2a0f52");
+    bg.addColorStop(0, "#060a22");
+    bg.addColorStop(0.55, "#0c1540");
+    bg.addColorStop(1, "#141a5a");
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
 
@@ -559,7 +528,6 @@ if (heroFx && heroPhoto && !prefersReducedMotion) {
 
     ctx.globalCompositeOperation = "source-over";
     heroPhoto.classList.toggle("is-fast", boost > 0.4);
-    requestAnimationFrame(draw);
   };
 
   if ("ResizeObserver" in window) {
@@ -567,8 +535,61 @@ if (heroFx && heroPhoto && !prefersReducedMotion) {
   } else {
     window.addEventListener("resize", resize, { passive: true });
   }
+
+  // Solo dibuja mientras el hero está en pantalla y la pestaña visible.
+  let heroVisible = true;
+  let rafId = 0;
+  let userPaused = false;
+  const heroPause = qs("#heroPause");
+  // En celular se dibuja a ~30 fps: la animación sigue fluida y cuesta la mitad.
+  let lastDraw = 0;
+  const loop = (now) => {
+    rafId = 0;
+    if (!heroVisible || document.hidden || userPaused || motionQuery.matches) return;
+    if (window.innerWidth >= 700 || now - lastDraw >= 30) {
+      lastDraw = now;
+      draw(now);
+    }
+    rafId = requestAnimationFrame(loop);
+  };
+  const start = () => {
+    if (rafId || userPaused || motionQuery.matches) return;
+    t0 = performance.now();
+    rafId = requestAnimationFrame(loop);
+  };
+
+  // WCAG 2.2.2: el usuario puede pausar la animación; el último fotograma queda quieto en el canvas.
+  heroPause?.addEventListener("click", () => {
+    userPaused = !userPaused;
+    heroPause.setAttribute("aria-pressed", String(userPaused));
+    qs("span", heroPause).textContent = userPaused ? "Reanudar animación" : "Pausar animación";
+    const icon = qs("[data-lucide], svg", heroPause);
+    if (icon) icon.setAttribute("data-lucide", userPaused ? "play" : "pause");
+    if (window.lucide) window.lucide.createIcons();
+    if (userPaused) {
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    } else {
+      start();
+    }
+  });
+  onMotionChange(() => (motionQuery.matches ? cancelAnimationFrame(rafId) : start()));
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(
+      (entries) => {
+        heroVisible = entries.some((entry) => entry.isIntersecting);
+        if (heroVisible) start();
+      },
+      { threshold: 0.05 }
+    ).observe(heroPhoto);
+  }
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && heroVisible) start();
+  });
+
   resize();
-  requestAnimationFrame(draw);
+  start();
 }
 
 /* ---------- Estado "en línea" (horario Lima, UTC-5) ---------- */
@@ -585,6 +606,51 @@ if (onlineState) {
   }
 }
 
+/* ---------- Validación compartida de formularios ---------- */
+
+const collapse = (value) => String(value || "").replace(/\s+/g, " ").trim();
+
+const checkers = {
+  // 9 dígitos que empiezan en 9, con prefijo +51 opcional; admite espacios y guiones al escribir
+  phone: (value) => {
+    const digits = value.replace(/[\s-]/g, "");
+    return /^(?:\+?51)?9\d{8}$/.test(digits) ? digits.replace(/^\+?51/, "") : null;
+  },
+  // DNI (8) o RUC (11) solo dígitos; opcional
+  document: (value) => (value === "" || /^(?:\d{8}|\d{11})$/.test(value) ? value : null),
+  // La zona necesita al menos dos letras: rechaza vacíos, espacios y solo números o símbolos
+  zone: (value) => (/\p{L}.*\p{L}/u.test(value) ? value : null),
+};
+
+const messages = {
+  phone: "Escribe un celular de 9 dígitos que empiece en 9 (el +51 es opcional).",
+  document: "El DNI tiene 8 dígitos y el RUC 11, solo números.",
+  zone: "Escribe tu distrito o una referencia con letras.",
+};
+
+/* Normaliza, valida y marca cada campo con setCustomValidity; devuelve los valores limpios o null.
+   Al fallar, reportValidity enfoca el primer campo inválido y no se abre WhatsApp. */
+const validateFields = (form, rules) => {
+  const values = {};
+  let firstInvalid = null;
+
+  Object.entries(rules).forEach(([name, kind]) => {
+    const input = form.elements[name];
+    const raw = collapse(input.value);
+    const clean = checkers[kind](raw);
+    input.setCustomValidity(clean === null ? messages[kind] : "");
+    if (clean === null && !firstInvalid) firstInvalid = input;
+    values[name] = clean;
+    input.addEventListener("input", () => input.setCustomValidity(""), { once: true });
+  });
+
+  if (firstInvalid) {
+    firstInvalid.reportValidity();
+    return null;
+  }
+  return values;
+};
+
 /* ---------- Consulta de cobertura ---------- */
 
 const coverageForm = qs("#coverageForm");
@@ -592,11 +658,11 @@ const coverageForm = qs("#coverageForm");
 coverageForm?.addEventListener("submit", (event) => {
   event.preventDefault();
 
-  const zone = String(new FormData(coverageForm).get("zona") || "").trim();
-  if (!zone) return;
+  const values = validateFields(coverageForm, { zona: "zone" });
+  if (!values) return;
 
   openWhatsApp(
-    `Hola Connect Star, quiero validar si hay cobertura de fibra óptica en mi zona: ${zone}.`
+    `Hola Connect Star, quiero validar si hay cobertura de fibra óptica en mi zona: ${values.zona}.`
   );
 });
 
@@ -607,22 +673,22 @@ const leadForm = qs("#leadForm");
 leadForm?.addEventListener("submit", (event) => {
   event.preventDefault();
 
+  // Los campos vacíos y la casilla sin marcar los resuelve la validación nativa (required).
   if (!leadForm.checkValidity()) {
     leadForm.reportValidity();
     return;
   }
 
-  const formData = new FormData(leadForm);
-  const documentNumber = String(formData.get("documento") || "").trim();
-  const phone = String(formData.get("telefono") || "").trim();
-  const zone = String(formData.get("zona") || "").trim();
-  const plan = String(formData.get("plan") || "").trim();
+  const values = validateFields(leadForm, { documento: "document", telefono: "phone", zona: "zone" });
+  if (!values) return;
+
+  const plan = collapse(new FormData(leadForm).get("plan"));
   const text = [
     "Hola Connect Star, quiero validar cobertura.",
     `Plan de interés: ${plan}`,
-    `Zona: ${zone}`,
-    `Celular: ${phone}`,
-    documentNumber ? `DNI/RUC: ${documentNumber}` : "",
+    `Zona: ${values.zona}`,
+    `Celular: ${values.telefono}`,
+    values.documento ? `DNI/RUC: ${values.documento}` : "",
   ]
     .filter(Boolean)
     .join("\n");
@@ -659,19 +725,13 @@ const setActiveNav = () => {
   });
 };
 
-/* ---------- Progreso de scroll + header compacto + volver arriba ---------- */
+/* ---------- Header con sombra al hacer scroll + volver arriba ---------- */
 
-const progressBar = qs(".scroll-progress");
 const backTop = qs("#backTop");
 
 const onScroll = () => {
-  const doc = document.documentElement;
-  const max = doc.scrollHeight - window.innerHeight;
   const y = window.scrollY;
 
-  if (progressBar && max > 0) {
-    progressBar.style.width = `${Math.min(100, (y / max) * 100)}%`;
-  }
   header?.classList.toggle("is-scrolled", y > 70);
   backTop?.classList.toggle("show", y > 700);
   setActiveNav();
@@ -681,118 +741,6 @@ window.addEventListener("scroll", onScroll, { passive: true });
 onScroll();
 
 backTop?.addEventListener("click", () => {
-  window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+  window.scrollTo({ top: 0, behavior: motionQuery.matches ? "auto" : "smooth" });
 });
 
-/* ---------- Burbuja de invitación en WhatsApp flotante ---------- */
-
-const waBubble = qs("#waBubble");
-
-if (waBubble && !sessionStorage.getItem("waBubbleSeen")) {
-  window.setTimeout(() => waBubble.classList.add("show"), 6000);
-  window.setTimeout(() => waBubble.classList.remove("show"), 18000);
-  qs(".floating-wa")?.addEventListener("click", () => {
-    waBubble.classList.remove("show");
-    sessionStorage.setItem("waBubbleSeen", "1");
-  });
-}
-
-/* ---------- Fondo animado de fibra ---------- */
-
-const canvas = qs("#fiberCanvas");
-
-if (canvas && !prefersReducedMotion) {
-  const ctx = canvas.getContext("2d");
-  const pointer = { x: -1000, y: -1000 };
-  let width = 0;
-  let height = 0;
-  let particles = [];
-
-  const resize = () => {
-    const ratio = Math.min(window.devicePixelRatio || 1, 2);
-    width = window.innerWidth;
-    height = window.innerHeight;
-    canvas.width = Math.floor(width * ratio);
-    canvas.height = Math.floor(height * ratio);
-    canvas.style.width = `${width}px`;
-    canvas.style.height = `${height}px`;
-    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-
-    const total = Math.min(88, Math.max(42, Math.round(width / 18)));
-    particles = Array.from({ length: total }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.45,
-      vy: (Math.random() - 0.5) * 0.45,
-      hue: Math.random() > 0.5 ? 188 : 294,
-    }));
-  };
-
-  const draw = () => {
-    ctx.clearRect(0, 0, width, height);
-
-    particles.forEach((particle, index) => {
-      particle.x += particle.vx;
-      particle.y += particle.vy;
-
-      if (particle.x < -20) particle.x = width + 20;
-      if (particle.x > width + 20) particle.x = -20;
-      if (particle.y < -20) particle.y = height + 20;
-      if (particle.y > height + 20) particle.y = -20;
-
-      const dxPointer = pointer.x - particle.x;
-      const dyPointer = pointer.y - particle.y;
-      const pointerDistance = Math.hypot(dxPointer, dyPointer);
-
-      if (pointerDistance < 150) {
-        particle.x -= dxPointer * 0.002;
-        particle.y -= dyPointer * 0.002;
-      }
-
-      for (let nextIndex = index + 1; nextIndex < particles.length; nextIndex += 1) {
-        const next = particles[nextIndex];
-        const dx = particle.x - next.x;
-        const dy = particle.y - next.y;
-        const distance = Math.hypot(dx, dy);
-
-        if (distance < 118) {
-          const alpha = (1 - distance / 118) * 0.22;
-          ctx.strokeStyle = `hsla(${particle.hue}, 100%, 66%, ${alpha})`;
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(particle.x, particle.y);
-          ctx.lineTo(next.x, next.y);
-          ctx.stroke();
-        }
-      }
-
-      ctx.fillStyle = `hsla(${particle.hue}, 100%, 66%, 0.42)`;
-      ctx.beginPath();
-      ctx.arc(particle.x, particle.y, 1.4, 0, Math.PI * 2);
-      ctx.fill();
-    });
-
-    requestAnimationFrame(draw);
-  };
-
-  window.addEventListener("resize", resize, { passive: true });
-  window.addEventListener(
-    "pointermove",
-    (event) => {
-      pointer.x = event.clientX;
-      pointer.y = event.clientY;
-    },
-    { passive: true }
-  );
-  window.addEventListener(
-    "pointerleave",
-    () => {
-      pointer.x = -1000;
-      pointer.y = -1000;
-    },
-    { passive: true }
-  );
-
-  resize();
-  draw();
-}
