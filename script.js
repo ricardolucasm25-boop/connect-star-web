@@ -80,6 +80,26 @@ qsa(".main-nav a, .header-cta").forEach((link) => {
   link.addEventListener("click", () => setMenu(false));
 });
 
+// Cierra el desplegable al salir de la cabecera y al pasar a escritorio.
+document.addEventListener("pointerdown", (event) => {
+  if (header?.classList.contains("is-open") && !header.contains(event.target)) setMenu(false);
+});
+document.addEventListener("focusin", (event) => {
+  if (header?.classList.contains("is-open") && !header.contains(event.target)) setMenu(false);
+});
+window.matchMedia("(min-width: 961px)").addEventListener("change", () => setMenu(false));
+
+// La barra móvil acompaña el scroll después de las acciones principales del hero.
+const mobileBar = qs(".mobile-bar");
+const heroActions = qs(".hero-actions");
+if (mobileBar && heroActions && "IntersectionObserver" in window) {
+  new IntersectionObserver(([entry]) => {
+    mobileBar.classList.toggle("is-visible", !entry.isIntersecting && entry.boundingClientRect.bottom < 0);
+  }).observe(heroActions);
+} else {
+  mobileBar?.classList.add("is-visible");
+}
+
 /* ---------- Filtro de planes ---------- */
 
 const planCards = qsa(".plan-card");
@@ -105,6 +125,8 @@ filterButtons.forEach((button) => {
 });
 
 const selectPlan = (planName) => {
+  // Un enlace a un plan también debe funcionar si el filtro lo había ocultado.
+  qs('[data-filter="all"]')?.click();
   planCards.forEach((card) => {
     const isMatch = card.dataset.plan === planName;
     card.classList.toggle("is-selected", isMatch);
@@ -131,6 +153,7 @@ qsa("[data-plan-jump]").forEach((link) => {
 /* ---------- WhatsApp por plan ---------- */
 
 qsa("[data-whatsapp-plan]").forEach((button) => {
+  button.setAttribute("aria-label", `Consultar ${button.closest(".plan-card").dataset.plan} por WhatsApp`);
   button.addEventListener("click", () => {
     const plan = button.dataset.whatsappPlan;
     openWhatsApp(`Hola Connect Star, quiero información sobre ${plan}. Quisiera validar cobertura e instalación.`);
@@ -166,6 +189,7 @@ if (speedRange) {
 
   const updateCompare = () => {
     const current = Number(speedRange.value);
+    speedRange.setAttribute("aria-valuetext", `${current} megabits por segundo`);
 
     qs("#curSpeed").textContent = current;
     // hasta un decimal: redondear a entero llegaba a exagerar 2,5x como 3x
@@ -214,6 +238,7 @@ if (lagArena) {
     lagMs = Number(lagRange.value);
     if (lagVal) lagVal.textContent = lagMs;
     if (lagStaticMs) lagStaticMs.textContent = lagMs;
+    lagRange.setAttribute("aria-valuetext", `${lagMs} milisegundos de congestión simulada`);
   });
 
   const record = (event) => {
@@ -267,7 +292,7 @@ if (lagArena) {
     rafId = requestAnimationFrame(tick);
   };
   const start = () => {
-    if (running || motionQuery.matches) return;
+    if (running || motionQuery.matches || document.hidden || !inView) return;
     running = true;
     measure();
     rafId = requestAnimationFrame(tick);
@@ -303,7 +328,7 @@ if (lagArena) {
   }
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) stop();
-    else if (lagArena.getBoundingClientRect().top < window.innerHeight) start();
+    else if (inView) start();
   });
   onMotionChange(applyLagMotion);
   applyLagMotion();
@@ -553,7 +578,7 @@ if (heroFx && heroPhoto) {
     rafId = requestAnimationFrame(loop);
   };
   const start = () => {
-    if (rafId || userPaused || motionQuery.matches) return;
+    if (rafId || userPaused || motionQuery.matches || document.hidden || !heroVisible) return;
     t0 = performance.now();
     rafId = requestAnimationFrame(loop);
   };
@@ -573,19 +598,28 @@ if (heroFx && heroPhoto) {
       start();
     }
   });
-  onMotionChange(() => (motionQuery.matches ? cancelAnimationFrame(rafId) : start()));
+  const stopHero = () => {
+    cancelAnimationFrame(rafId);
+    rafId = 0;
+  };
+  onMotionChange(() => {
+    if (motionQuery.matches) stopHero();
+    else { resize(); start(); }
+  });
 
   if ("IntersectionObserver" in window) {
     new IntersectionObserver(
       (entries) => {
         heroVisible = entries.some((entry) => entry.isIntersecting);
         if (heroVisible) start();
+        else stopHero();
       },
       { threshold: 0.05 }
     ).observe(heroPhoto);
   }
   document.addEventListener("visibilitychange", () => {
-    if (!document.hidden && heroVisible) start();
+    if (document.hidden) stopHero();
+    else if (heroVisible) start();
   });
 
   resize();
@@ -714,14 +748,18 @@ const navLinks = qsa(".main-nav a");
 
 const setActiveNav = () => {
   let activeId = "";
+  const anchorLine = (header?.offsetHeight || 0) + 32;
 
   navSections.forEach((section) => {
     const rect = section.getBoundingClientRect();
-    if (rect.top <= 140 && rect.bottom >= 140) activeId = section.id;
+    if (rect.top <= anchorLine && rect.bottom >= anchorLine) activeId = section.id;
   });
 
   navLinks.forEach((link) => {
-    link.classList.toggle("is-current", link.getAttribute("href") === `#${activeId}`);
+    const current = link.getAttribute("href") === `#${activeId}`;
+    link.classList.toggle("is-current", current);
+    if (current) link.setAttribute("aria-current", "location");
+    else link.removeAttribute("aria-current");
   });
 };
 
@@ -737,7 +775,12 @@ const onScroll = () => {
   setActiveNav();
 };
 
-window.addEventListener("scroll", onScroll, { passive: true });
+let scrollQueued = false;
+window.addEventListener("scroll", () => {
+  if (scrollQueued) return;
+  scrollQueued = true;
+  requestAnimationFrame(() => { onScroll(); scrollQueued = false; });
+}, { passive: true });
 onScroll();
 
 backTop?.addEventListener("click", () => {
